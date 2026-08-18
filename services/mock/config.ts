@@ -7,6 +7,7 @@
 const ALL_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS !== "false";
 
 export const MOCKS = {
+  auth: ALL_MOCKS,
   overview: ALL_MOCKS,
   designers: ALL_MOCKS,
   shoppers: ALL_MOCKS,

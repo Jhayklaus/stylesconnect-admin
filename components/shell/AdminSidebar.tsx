@@ -52,7 +52,7 @@ export function AdminSidebar({ className }: { className?: string }) {
       </div>
 
       <PinnedTickets />
-      <SidebarUserCard name="Sophia Williams" role="Admin" />
+      <SidebarUserCard />
     </aside>
   );
 }
