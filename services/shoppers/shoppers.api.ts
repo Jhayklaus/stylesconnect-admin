@@ -1,0 +1,48 @@
+import { apiClient } from "../client";
+import type { ApiEnvelope, Paginated } from "../types";
+import { MOCKS } from "../mock/config";
+import { applyFilter, applySearch, applySort, delay, mockPaginate } from "../mock/transport";
+import { MOCK_SHOPPERS, MOCK_SHOPPER_STATS } from "./shoppers.mock";
+import type { Shopper, ShopperListParams, ShopperStats } from "./shoppers.types";
+
+const SORTS: Record<string, (a: Shopper, b: Shopper) => number> = {
+  name_asc: (a, b) => a.name.localeCompare(b.name),
+  name_desc: (a, b) => b.name.localeCompare(a.name),
+  spend_desc: (a, b) => b.total_spend - a.total_spend,
+  recent: (a, b) => +new Date(b.last_order_at) - +new Date(a.last_order_at),
+};
+
+/** GET /admin/shoppers */
+export async function fetchShoppers(
+  params: ShopperListParams = {}
+): Promise<Paginated<Shopper>> {
+  if (MOCKS.shoppers) {
+    await delay();
+    let rows = MOCK_SHOPPERS;
+    rows = applySearch(rows, params.q, ["name", "email"]);
+    rows = applyFilter(rows, params.status, (s) => s.status);
+    if (params.segment === "returning") rows = rows.filter((s) => s.order_count > 1);
+    if (params.segment === "new") rows = rows.filter((s) => s.order_count <= 1);
+
+    if (params.spend === "under_50m") rows = rows.filter((s) => s.total_spend < 50_000_000);
+    if (params.spend === "50m_150m")
+      rows = rows.filter((s) => s.total_spend >= 50_000_000 && s.total_spend <= 150_000_000);
+    if (params.spend === "over_150m") rows = rows.filter((s) => s.total_spend > 150_000_000);
+    rows = applySort(rows, params.sort, SORTS);
+    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7, "/admin/shoppers");
+  }
+
+  const { data } = await apiClient.get<Paginated<Shopper>>("/admin/shoppers", { params });
+  return data;
+}
+
+/** GET /admin/shoppers/stats */
+export async function fetchShopperStats(): Promise<ShopperStats> {
+  if (MOCKS.shoppers) {
+    await delay(200);
+    return MOCK_SHOPPER_STATS;
+  }
+
+  const { data } = await apiClient.get<ApiEnvelope<ShopperStats>>("/admin/shoppers/stats");
+  return data.data;
+}

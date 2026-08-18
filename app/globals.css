@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Brand */
+  --primary-base: #63322c;
+  --primary-light: #7d4038;
+
+  /* Beige */
+  --beige-lighter: #fdf9f6;
+  --beige-base: #e8c5a5;
+
+  /* Text */
+  --text-main-900: #140b0a;
+  --text-sub-500: #585251;
+  --text-white-0: #ffffff;
+  --text-disabled-300: #c4c2c2;
+
+  /* Backgrounds */
+  --bg-white-0: #ffffff;
+  --bg-soft-200: #ecebeb;
+
+  /* Charcoal (dark) */
+  --charcoal-darker: #1e2429;
+  --charcoal-base: #313b44;
+
+  /* Strokes */
+  --stroke-soft-200: #ecebeb;
+  --stroke-strong-900: #140b0a;
+
+  /* Admin surfaces: the content column is white and the sidebar rail carries
+     the warm tint. This inverts the consumer app, where the page is beige. */
+  --sidebar-bg: #faf8f7;
+  --sidebar-border: #f0eceb;
+
+  --background: var(--bg-white-0);
+  --foreground: var(--text-main-900);
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+::selection {
+  background: var(--beige-base);
+  color: var(--text-main-900);
+}
+
+/* In the base layer so utilities like `outline-none` can override it —
+   text inputs style focus on their wrapper (border + glow) instead. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--primary-light);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
