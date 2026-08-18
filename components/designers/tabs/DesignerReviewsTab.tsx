@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { CalendarDays, Copy, MoreHorizontal } from "lucide-react";
+import { CalendarDays, MoreHorizontal } from "lucide-react";
 import {
   Avatar,
+  CopyButton,
   EmptyState,
   FilterDropdown,
   IconButton,
@@ -15,7 +16,6 @@ import {
 import { useDesignerReviews } from "@/hooks/designers/useDesignerDetail";
 import { useListParams } from "@/hooks/useListParams";
 import { formatDateShort, formatTime } from "@/lib/format";
-import { toast } from "@/lib/toast";
 import type { DesignerDetail, DesignerReviewItem } from "@/services/designers";
 
 const RATING_OPTIONS = [
@@ -37,15 +37,6 @@ const PERIOD_OPTIONS = [
 ];
 
 function ReviewCard({ review }: { review: DesignerReviewItem }) {
-  async function copyReference() {
-    try {
-      await navigator.clipboard.writeText(review.reference);
-      toast.success("Review ID copied");
-    } catch {
-      toast.error("Couldn't copy the review ID");
-    }
-  }
-
   return (
     <article className="flex flex-col gap-3 border-b border-stroke-soft pb-6 last:border-b-0">
       <div className="flex items-start justify-between gap-3">
@@ -69,14 +60,7 @@ function ReviewCard({ review }: { review: DesignerReviewItem }) {
       <div className="flex flex-wrap items-center gap-3">
         <span className="inline-flex items-center gap-1.5 font-jost text-sm leading-5 text-text-500">
           {review.reference}
-          <button
-            type="button"
-            onClick={copyReference}
-            aria-label={`Copy review ID ${review.reference}`}
-            className="rounded p-0.5 text-text-300 transition-colors hover:text-text-900"
-          >
-            <Copy className="h-3.5 w-3.5" aria-hidden />
-          </button>
+          <CopyButton value={review.reference} label="Review ID" />
         </span>
         <Rating value={review.rating} size="sm" />
       </div>

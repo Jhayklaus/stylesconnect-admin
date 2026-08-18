@@ -15,5 +15,6 @@ export const MOCKS = {
   payments: ALL_MOCKS,
   members: ALL_MOCKS,
   returns: ALL_MOCKS,
+  refunds: ALL_MOCKS,
   tickets: ALL_MOCKS,
 } as const;

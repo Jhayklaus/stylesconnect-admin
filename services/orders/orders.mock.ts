@@ -1,5 +1,11 @@
-import { PEOPLE, daysAgo, intBetween, pick, seeded } from "../mock/seed";
-import type { FulfillmentStatus, Order, OrderDetail, PaymentStatus } from "./orders.types";
+import { PEOPLE, daysAgo, intBetween, pick, productImage, seeded } from "../mock/seed";
+import type {
+  FulfillmentStatus,
+  Order,
+  OrderDetail,
+  OrderTimelineEntry,
+  PaymentStatus,
+} from "./orders.types";
 
 const TIMELINES = ["2—3 weeks", "1—2 weeks", "3—5 days", "4—6 weeks"];
 
@@ -52,7 +58,33 @@ export function mockOrderDetail(id: string): OrderDetail | undefined {
       phone: `+234${intBetween(7_000_000_000, 9_099_999_999, `phone-${id}`)}`,
       address: "12 Admiralty Way, Lekki Phase 1, Lagos",
     },
-    payment_method: "Paystack card",
+    reference: `#${["ARTHYOE", "RQMZ4TL", "KPD91XB", "WYT3NRA"][index % 4]}`,
+    store: ["Pine & Peak", "Aso Atelier", "Lagos Linen Co."][index % 3],
+    payment_id: `#RAD${String(10_000 + intBetween(10, 999, `payid-${id}`))}`,
+    estimated_delivery_at: daysAgo(-intBetween(2, 21, `eta-${id}`)),
+    stage: (["review", "preparing", "shipping", "delivered"] as const)[
+      intBetween(0, 3, `stage-${id}`)
+    ],
+    product: {
+      id: `${id}-product`,
+      title: "White Linen embroiled t-shirt",
+      image_url: productImage(index),
+      color: ["Black", "White", "Indigo"][index % 3],
+      size: ["Small", "Medium", "Large", "XLarge"][index % 4],
+      measurements: {
+        top: { chest: "24Cm", waist: "240Cm", length: "240Cm" },
+        bottom: { chest: "24Cm", waist: "240Cm", length: "240Cm" },
+      },
+    },
+    shipping: {
+      tracking_id: `TMHJWYRAD${String(10_000 + intBetween(10, 999, `track-${id}`))}`,
+      carrier: "FedEx",
+      origin: "Plot 2, 14 Ikeji street, Arewa estate, Ilupeju, Lagos",
+      destination: "12 Admiralty Way, Lekki Phase 1, Lagos",
+    },
+    shipping_fee: intBetween(5, 25, `shipfee-${id}`) * 100_000,
+    events: orderTimeline(id),
+    payment_method: "Bank transfer",
     shipping_address: "12 Admiralty Way, Lekki Phase 1, Lagos",
     notes: "Please package with care and include the garment bag.",
     items: Array.from({ length: itemCount }, (_, i) => ({
@@ -66,4 +98,45 @@ export function mockOrderDetail(id: string): OrderDetail | undefined {
     prev_id: index > 0 ? MOCK_ORDERS[index - 1].id : null,
     next_id: index < MOCK_ORDERS.length - 1 ? MOCK_ORDERS[index + 1].id : null,
   };
+}
+
+/**
+ * Reverse-chronological, with the not-yet-reached step first — the design shows
+ * "Delivered" at the top carrying a hollow spinner while the rest are ticked.
+ */
+function orderTimeline(id: string): OrderTimelineEntry[] {
+  const steps: Omit<OrderTimelineEntry, "id" | "created_at">[] = [
+    {
+      title: "Delivered",
+      description: "Customer has confirmed receipt of item",
+      state: "pending",
+    },
+    {
+      title: "Order has been shipped",
+      description: "Via fedEx shipping service • TRAYETMN",
+      state: "done",
+    },
+    {
+      title: "Order has been processed",
+      description: "Packed and ready for shipment by the designer",
+      state: "done",
+    },
+    {
+      title: "Order processing",
+      description: "Order is now being prepared by the designer",
+      state: "done",
+    },
+    {
+      title: "Payment confirmed",
+      description: "Via Paystack payment gateway • Mastercard ***3245",
+      state: "done",
+    },
+  ];
+
+  return steps.map((step, i) => ({
+    ...step,
+    id: `${id}-event-${i}`,
+    // Oldest at the bottom: later entries in the list are further in the past.
+    created_at: daysAgo(intBetween(1, 6, `event-${id}-${i}`) * (i + 1)),
+  }));
 }

@@ -15,7 +15,9 @@ import type {
   TicketEntry,
   TicketListParams,
   TicketMessage,
+  TicketPriority,
   TicketStats,
+  TicketType,
 } from "./tickets.types";
 
 /** GET /admin/tickets */
@@ -109,5 +111,38 @@ export async function replyToTicket(
     `/admin/tickets/${id}/replies`,
     payload
   );
+  return data.data;
+}
+
+export interface CreateTicketBody {
+  subject: string;
+  type: TicketType;
+  priority: TicketPriority;
+  requester_id: string;
+  assignee_id: string | null;
+  followers: string[];
+  message: string;
+  /** Which mailbox/persona the first message is sent as. */
+  from: string;
+}
+
+/** POST /admin/tickets */
+export async function createTicket(payload: CreateTicketBody): Promise<Ticket> {
+  if (MOCKS.tickets) {
+    await delay();
+    return {
+      id: `TCK-${Date.now()}`,
+      ticket_id: `IKU—${Math.floor(1000 + Math.random() * 99)}`,
+      subject: payload.subject,
+      status: "open",
+      requested_at: new Date().toISOString(),
+      customer: { id: payload.requester_id, name: payload.requester_id, avatar_url: null },
+      assignee: payload.assignee_id
+        ? { id: payload.assignee_id, name: payload.assignee_id, avatar_url: null }
+        : null,
+    };
+  }
+
+  const { data } = await apiClient.post<ApiEnvelope<Ticket>>("/admin/tickets", payload);
   return data.data;
 }

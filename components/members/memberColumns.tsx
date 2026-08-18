@@ -1,8 +1,18 @@
-import { Avatar, StatusBadge, type Column } from "@/components/ui";
+import { Mail, Trash2, UserRound } from "lucide-react";
+import { ActionMenu, Avatar, StatusBadge, type Column } from "@/components/ui";
 import { formatDateShort, formatDateTimeShort, formatMonthYear } from "@/lib/format";
 import type { Member } from "@/services/members";
 
-export const memberColumns: Column<Member>[] = [
+export type MemberAction = "resend" | "role" | "remove";
+
+/**
+ * A factory rather than a constant: the trailing menu needs the page's
+ * handlers, and the cell JSX still stays out of the page component.
+ */
+export function memberColumns(
+  onAction: (action: MemberAction, member: Member) => void
+): Column<Member>[] {
+  return [
   {
     id: "name",
     header: "Name",
@@ -40,5 +50,39 @@ export const memberColumns: Column<Member>[] = [
           - - - - - - -
         </span>
       ),
-  },
-];
+    },
+    {
+      id: "actions",
+      header: "",
+      width: "w-[64px]",
+      align: "right",
+      cell: (row) => (
+        <ActionMenu
+          label={`Actions for ${row.name}`}
+          onSelect={(value) => onAction(value as MemberAction, row)}
+          items={[
+            {
+              value: "resend",
+              label: "Resend invite",
+              icon: <Mail className="h-4 w-4" aria-hidden />,
+              // Only pending invites can be resent.
+              disabled: row.status !== "invited",
+              checked: row.status === "invited",
+            },
+            {
+              value: "role",
+              label: "Change role",
+              icon: <UserRound className="h-4 w-4" aria-hidden />,
+            },
+            {
+              value: "remove",
+              label: "Remove member",
+              icon: <Trash2 className="h-4 w-4" aria-hidden />,
+              danger: true,
+            },
+          ]}
+        />
+      ),
+    },
+  ];
+}

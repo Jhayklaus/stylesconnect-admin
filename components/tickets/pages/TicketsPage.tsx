@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ArrowDownUp, Bell, ListFilter, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AdminTopBar } from "@/components/shell";
@@ -19,6 +20,7 @@ import { useTicketStats, useTickets } from "@/hooks/tickets/useTickets";
 import { useListParams } from "@/hooks/useListParams";
 import type { TicketListParams } from "@/services/tickets";
 import { ticketColumns } from "../ticketColumns";
+import { CreateTicketModal } from "../CreateTicketModal";
 
 const TABS = [
   { value: "all", label: "All tickets" },
@@ -44,6 +46,7 @@ const SORT_OPTIONS = [
 export function TicketsPage() {
   const router = useRouter();
   const params = useListParams({ filterKeys: ["status", "sort"] });
+  const [createOpen, setCreateOpen] = useState(false);
 
   const query: TicketListParams = {
     page: params.page,
@@ -64,7 +67,12 @@ export function TicketsPage() {
         actions={
           <>
             <IconButton label="Notifications" dot icon={<Bell className="h-[18px] w-[18px]" />} />
-            <Button leadingIcon={<Plus className="h-4 w-4" aria-hidden />}>Add ticket</Button>
+            <Button
+              leadingIcon={<Plus className="h-4 w-4" aria-hidden />}
+              onClick={() => setCreateOpen(true)}
+            >
+              Add ticket
+            </Button>
           </>
         }
       />
@@ -142,6 +150,8 @@ export function TicketsPage() {
           }
         />
       </div>
+
+      <CreateTicketModal open={createOpen} onClose={() => setCreateOpen(false)} />
     </>
   );
 }

@@ -7,5 +7,14 @@ import nextTypescript from "eslint-config-next/typescript";
 export default defineConfig([
   ...nextCoreWebVitals,
   ...nextTypescript,
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  // Recursive globs, and `.claude/**` explicitly: git worktrees are created
+  // under `.claude/worktrees/`, so a sibling checkout's build output sits
+  // inside this directory and would otherwise be linted as our own source.
+  globalIgnores([
+    "**/.next/**",
+    "**/out/**",
+    "**/build/**",
+    ".claude/**",
+    "next-env.d.ts",
+  ]),
 ]);

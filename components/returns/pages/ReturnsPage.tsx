@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { AdminTopBar } from "@/components/shell";
 import {
   DataTable,
@@ -13,6 +14,7 @@ import {
 import { useReturns } from "@/hooks/returns/useReturns";
 import { useListParams } from "@/hooks/useListParams";
 import type { ReturnListParams } from "@/services/returns";
+import { ReturnDetailsModal } from "../ReturnDetailsModal";
 import { returnColumns } from "../returnColumns";
 
 const TABS = [
@@ -57,6 +59,10 @@ export function ReturnsPage() {
 
   const { data, isLoading, error } = useReturns(query);
 
+  // A return opens in a dialog rather than its own route — there is no
+  // standalone return screen in the designs.
+  const [openId, setOpenId] = useState<string | null>(null);
+
   return (
     <>
       <AdminTopBar title="Return" />
@@ -94,6 +100,7 @@ export function ReturnsPage() {
           columns={returnColumns}
           rows={data?.data}
           rowKey={(row) => row.id}
+          onRowClick={(row) => setOpenId(row.id)}
           isLoading={isLoading}
           error={error}
           skeletonRows={params.perPage}
@@ -116,6 +123,8 @@ export function ReturnsPage() {
           }
         />
       </div>
+
+      <ReturnDetailsModal returnId={openId} onClose={() => setOpenId(null)} />
     </>
   );
 }

@@ -1,15 +1,16 @@
 import {
   ArrowLeftRight,
-  ChartNoAxesCombined,
   LayoutGrid,
   Package,
   Settings,
   ShoppingBag,
   Ticket,
-  TicketPercent,
   Users,
   type LucideIcon,
 } from "lucide-react";
+// Coupons and Analytics are parked — restore these imports together with the
+// commented entries at the bottom of MAIN_MENU.
+// import { ChartNoAxesCombined, TicketPercent } from "lucide-react";
 
 export interface NavChild {
   label: string;
@@ -30,9 +31,9 @@ export interface NavItem {
  *
  * The Figma frames disagree with each other — Overview.png shows
  * Tickets/Coupons/Administration but no Team members, while payments.png shows
- * the reverse. This is the union, with team members nested under
- * Administration. Every href here is backed by a real route (some are
- * "coming soon" stubs) so no nav item dead-ends.
+ * the reverse. This was the union of both; Coupons and Analytics have since
+ * been parked. Every href here is backed by a real route (some are "coming
+ * soon" stubs) so no nav item dead-ends.
  */
 export const MAIN_MENU: NavItem[] = [
   { key: "overview", label: "Overview", icon: LayoutGrid, href: "/overview" },
@@ -66,7 +67,10 @@ export const MAIN_MENU: NavItem[] = [
     ],
   },
   { key: "tickets", label: "Tickets", icon: Ticket, href: "/tickets" },
-  { key: "coupons", label: "Coupons", icon: TicketPercent, href: "/coupons" },
-  { key: "analytics", label: "Analytics", icon: ChartNoAxesCombined, href: "/analytics" },
-  { key: "administration", label: "Administration", icon: Settings, href: "/administration" },
+  // Parked for now. The /coupons and /analytics routes still exist as stubs,
+  // so restoring these two lines (and their icon imports above) is all it takes.
+  // { key: "coupons", label: "Coupons", icon: TicketPercent, href: "/coupons" },
+  // { key: "analytics", label: "Analytics", icon: ChartNoAxesCombined, href: "/analytics" },
+  // Route stays /administration; only the label changed.
+  { key: "administration", label: "Team management", icon: Settings, href: "/administration" },
 ];

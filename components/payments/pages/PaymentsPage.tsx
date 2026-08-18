@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { CalendarDays } from "lucide-react";
 import { AdminTopBar, type Crumb } from "@/components/shell";
 import {
@@ -15,6 +16,7 @@ import { usePayments } from "@/hooks/payments/usePayments";
 import { useListParams } from "@/hooks/useListParams";
 import type { PaymentListParams } from "@/services/payments";
 import { paymentColumns } from "../paymentColumns";
+import { TransactionDrawer } from "../TransactionDrawer";
 
 const CRUMBS: Crumb[] = [
   { label: "Transactions", href: "/transactions" },
@@ -42,6 +44,7 @@ const PERIOD_OPTIONS = [
 
 export function PaymentsPage() {
   const params = useListParams({ filterKeys: ["method", "period"] });
+  const [openPaymentId, setOpenPaymentId] = useState<string | null>(null);
 
   const query: PaymentListParams = {
     page: params.page,
@@ -86,6 +89,7 @@ export function PaymentsPage() {
           columns={paymentColumns}
           rows={data?.data}
           rowKey={(row) => row.id}
+          onRowClick={(row) => setOpenPaymentId(row.id)}
           isLoading={isLoading}
           error={error}
           skeletonRows={params.perPage}
@@ -108,6 +112,8 @@ export function PaymentsPage() {
           }
         />
       </div>
+
+      <TransactionDrawer paymentId={openPaymentId} onClose={() => setOpenPaymentId(null)} />
     </>
   );
 }

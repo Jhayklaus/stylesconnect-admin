@@ -38,3 +38,27 @@ export const PAYMENT_KIND_LABEL: Record<PaymentKind, string> = {
   order: "Order",
   subscription: "Subscription",
 };
+
+export interface PaymentSubscription {
+  plan: string;
+  starts_at: string;
+  ends_at: string;
+}
+
+/** GET /admin/transactions/payments/:id — the details drawer. */
+export interface PaymentDetail extends Payment {
+  /** Display form: "Mastercard •• 1038". */
+  card_label: string;
+  /** Null for one-off order payments — the drawer hides that section. */
+  subscription: PaymentSubscription | null;
+  /** The processor's own reference: "STX12349465". */
+  transaction_ref: string;
+  description: string;
+  fee: number;
+  tax: number;
+  /**
+   * The amount before fee and tax. `amount` on Payment is what was charged,
+   * so net + fee + tax === amount.
+   */
+  net: number;
+}

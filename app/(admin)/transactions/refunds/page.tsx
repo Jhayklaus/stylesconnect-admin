@@ -1,10 +1,10 @@
-import { StubPage } from "@/components/stubs/StubPage";
+import { Suspense } from "react";
+import { RefundsPage } from "@/components/refunds/pages/RefundsPage";
 
 export default function Page() {
   return (
-    <StubPage
-      title="Refunds"
-      breadcrumb={[{ label: "Transactions" }, { label: "Refunds" }]}
-    />
+    <Suspense>
+      <RefundsPage />
+    </Suspense>
   );
 }

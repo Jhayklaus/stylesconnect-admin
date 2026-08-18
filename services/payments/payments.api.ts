@@ -1,9 +1,9 @@
 import { apiClient } from "../client";
-import type { Paginated } from "../types";
+import { ApiError, type ApiEnvelope, type Paginated } from "../types";
 import { MOCKS } from "../mock/config";
 import { applyFilter, applySearch, delay, mockPaginate } from "../mock/transport";
-import { MOCK_PAYMENTS } from "./payments.mock";
-import type { Payment, PaymentListParams } from "./payments.types";
+import { MOCK_PAYMENTS, mockPaymentDetail } from "./payments.mock";
+import type { Payment, PaymentDetail, PaymentListParams } from "./payments.types";
 
 const PERIOD_DAYS: Record<string, number> = { "7d": 7, "30d": 30, "90d": 90 };
 
@@ -40,4 +40,21 @@ export async function fetchPayments(
     params,
   });
   return data;
+}
+
+/** GET /admin/transactions/payments/:id */
+export async function fetchPaymentDetail(id: string): Promise<PaymentDetail> {
+  if (MOCKS.payments) {
+    await delay();
+    const detail = mockPaymentDetail(id);
+    if (!detail) {
+      throw new ApiError({ message: "Payment not found", status: 404 });
+    }
+    return detail;
+  }
+
+  const { data } = await apiClient.get<ApiEnvelope<PaymentDetail>>(
+    `/admin/transactions/payments/${id}`
+  );
+  return data.data;
 }

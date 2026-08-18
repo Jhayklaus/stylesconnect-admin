@@ -16,8 +16,11 @@ export interface DetailHeaderProps {
   onNext?: () => void;
   hasPrev?: boolean;
   hasNext?: boolean;
-  manageOptions: { value: string; label: string }[];
-  onManage: (value: string) => void;
+  /** Omit when passing `actions` instead. */
+  manageOptions?: { value: string; label: string }[];
+  onManage?: (value: string) => void;
+  /** Replaces the Manage dropdown — the order detail shows "Return request". */
+  actions?: ReactNode;
   className?: string;
 }
 
@@ -37,6 +40,7 @@ export function DetailHeader({
   hasNext = true,
   manageOptions,
   onManage,
+  actions,
   className,
 }: DetailHeaderProps) {
   return (
@@ -62,7 +66,10 @@ export function DetailHeader({
           disabled={!hasNext || !onNext}
           icon={<ChevronRight className="h-[18px] w-[18px]" />}
         />
-        <FilterDropdown label="Manage" options={manageOptions} onChange={onManage} />
+        {actions ??
+          (manageOptions && onManage && (
+            <FilterDropdown label="Manage" options={manageOptions} onChange={onManage} />
+          ))}
       </div>
     </div>
   );

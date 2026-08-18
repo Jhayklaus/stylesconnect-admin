@@ -53,7 +53,7 @@ export function TicketDetailsRail({
         <FilterDropdown
           label="Type"
           align="start"
-          className="w-full"
+          className="w-full [&>button]:w-full [&>button]:justify-between"
           options={TICKET_TYPE_OPTIONS}
           value={detail.type}
           onChange={onTypeChange}

@@ -1,10 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  createTicket,
   fetchTicket,
   fetchTicketThread,
   replyToTicket,
   ticketKeys,
+  type CreateTicketBody,
   type ReplyToTicketBody,
+  type Ticket,
   type TicketDetail,
   type TicketEntry,
 } from "@/services/tickets";
@@ -36,6 +39,19 @@ export function useReplyToTicket(id: string) {
       queryClient.setQueryData<TicketEntry[]>(ticketKeys.thread(id), (prev) =>
         prev ? [...prev, entry] : [entry]
       );
+    },
+    onError: (error) => toast.error(error.message),
+  });
+}
+
+export function useCreateTicket() {
+  const queryClient = useQueryClient();
+
+  return useMutation<Ticket, ApiError, CreateTicketBody>({
+    mutationFn: createTicket,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ticketKeys.lists() });
+      toast.success("Ticket created");
     },
     onError: (error) => toast.error(error.message),
   });

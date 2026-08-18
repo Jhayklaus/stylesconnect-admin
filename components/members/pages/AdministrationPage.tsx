@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { AdminTopBar, type Crumb } from "@/components/shell";
 import {
   Button,
@@ -12,12 +13,19 @@ import {
   TableFooter,
   Toolbar,
 } from "@/components/ui";
-import { useMembers } from "@/hooks/members/useMembers";
+import { useMembers, useRemoveMember, useResendInvite } from "@/hooks/members/useMembers";
 import { useListParams } from "@/hooks/useListParams";
-import { MEMBER_ROLES, type MemberListParams } from "@/services/members";
-import { memberColumns } from "../memberColumns";
+import { MEMBER_ROLES, type Member, type MemberListParams } from "@/services/members";
+import { memberColumns, type MemberAction } from "../memberColumns";
+import { ChangeRoleModal } from "../ChangeRoleModal";
+import { InviteMemberModal } from "../InviteMemberModal";
 
-const CRUMBS: Crumb[] = [{ label: "Team members", href: "/administration" }, { label: "Members" }];
+// Matches the sidebar label rather than the frame's "Team members", so the
+// breadcrumb root and the nav item read the same.
+const CRUMBS: Crumb[] = [
+  { label: "Team management", href: "/administration" },
+  { label: "Members" },
+];
 
 const TABS = [
   { value: "all", label: "Members" },
@@ -48,6 +56,16 @@ export function AdministrationPage() {
   };
 
   const { data, isLoading, error } = useMembers(query);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [roleTarget, setRoleTarget] = useState<Member | null>(null);
+  const resend = useResendInvite();
+  const remove = useRemoveMember();
+
+  function onAction(action: MemberAction, member: Member) {
+    if (action === "resend") resend.mutate(member.id);
+    if (action === "role") setRoleTarget(member);
+    if (action === "remove") remove.mutate(member.id);
+  }
   const onActivityTab = params.tab === "activity";
 
   return (
@@ -57,7 +75,7 @@ export function AdministrationPage() {
       <div className="flex flex-col gap-6 px-8 py-6">
         <Toolbar
           left={<SegmentedTabs tabs={TABS} value={params.tab} onChange={params.setTab} />}
-          right={<Button>Invite Member</Button>}
+          right={<Button onClick={() => setInviteOpen(true)}>Invite Member</Button>}
         />
 
         {onActivityTab ? (
@@ -90,7 +108,7 @@ export function AdministrationPage() {
             />
 
             <DataTable
-              columns={memberColumns}
+              columns={memberColumns(onAction)}
               rows={data?.data}
               rowKey={(row) => row.id}
               isLoading={isLoading}
@@ -117,6 +135,9 @@ export function AdministrationPage() {
           </>
         )}
       </div>
+
+      <InviteMemberModal open={inviteOpen} onClose={() => setInviteOpen(false)} />
+      <ChangeRoleModal member={roleTarget} onClose={() => setRoleTarget(null)} />
     </>
   );
 }
