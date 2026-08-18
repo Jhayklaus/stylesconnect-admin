@@ -1,5 +1,5 @@
 import { PEOPLE, daysAgo, intBetween, pick, seeded } from "../mock/seed";
-import type { FulfillmentStatus, Order, PaymentStatus } from "./orders.types";
+import type { FulfillmentStatus, Order, OrderDetail, PaymentStatus } from "./orders.types";
 
 const TIMELINES = ["2—3 weeks", "1—2 weeks", "3—5 days", "4—6 weeks"];
 
@@ -35,3 +35,35 @@ export const MOCK_ORDERS: Order[] = Array.from({ length: 38 }, (_, i) => {
     },
   };
 });
+
+export function mockOrderDetail(id: string): OrderDetail | undefined {
+  const base = MOCK_ORDERS.find((order) => order.id === id);
+  if (!base) return undefined;
+
+  const index = MOCK_ORDERS.findIndex((order) => order.id === id);
+  const customerName = base.customer.name;
+  const itemCount = Math.max(2, Math.min(5, intBetween(2, 5, `items-${id}`)));
+
+  return {
+    ...base,
+    customer: {
+      ...base.customer,
+      email: `${customerName.toLowerCase().replace(/\s+/g, ".")}@mail.com`,
+      phone: `+234${intBetween(7_000_000_000, 9_099_999_999, `phone-${id}`)}`,
+      address: "12 Admiralty Way, Lekki Phase 1, Lagos",
+    },
+    payment_method: "Paystack card",
+    shipping_address: "12 Admiralty Way, Lekki Phase 1, Lagos",
+    notes: "Please package with care and include the garment bag.",
+    items: Array.from({ length: itemCount }, (_, i) => ({
+      id: `${id}-item-${i}`,
+      name: ["White Linen Shirt", "Aso-oke Wrap Dress", "Linen Blazer", "Structured Tote"][i % 4],
+      image_url: null,
+      quantity: intBetween(1, 3, `item-qty-${id}-${i}`),
+      unit_price: intBetween(18, 90, `item-price-${id}-${i}`) * 1_000_000,
+      total: intBetween(18, 90, `item-total-${id}-${i}`) * 1_000_000,
+    })),
+    prev_id: index > 0 ? MOCK_ORDERS[index - 1].id : null,
+    next_id: index < MOCK_ORDERS.length - 1 ? MOCK_ORDERS[index + 1].id : null,
+  };
+}

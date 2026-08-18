@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { ListFilter } from "lucide-react";
 import { AdminTopBar } from "@/components/shell";
 import {
@@ -38,6 +39,7 @@ const SUBSCRIPTION_OPTIONS = [
 ];
 
 export function DesignersPage() {
+  const router = useRouter();
   const params = useListParams({ filterKeys: ["subscription", "sort"] });
 
   const query: DesignerListParams = {
@@ -93,6 +95,7 @@ export function DesignersPage() {
           columns={designerColumns}
           rows={data?.data}
           rowKey={(row) => row.id}
+          onRowClick={(row) => router.push(`/customers/designers/${row.id}`)}
           isLoading={isLoading}
           error={error}
           skeletonRows={params.perPage}

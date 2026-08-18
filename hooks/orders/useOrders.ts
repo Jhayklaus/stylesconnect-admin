@@ -1,5 +1,12 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { fetchOrders, orderKeys, type Order, type OrderListParams } from "@/services/orders";
+import {
+  fetchOrder,
+  fetchOrders,
+  orderKeys,
+  type Order,
+  type OrderDetail,
+  type OrderListParams,
+} from "@/services/orders";
 import type { ApiError, Paginated } from "@/services/types";
 
 export function useOrders(params: OrderListParams) {
@@ -7,5 +14,12 @@ export function useOrders(params: OrderListParams) {
     queryKey: orderKeys.list(params),
     queryFn: () => fetchOrders(params),
     placeholderData: keepPreviousData,
+  });
+}
+
+export function useOrder(id: string) {
+  return useQuery<OrderDetail, ApiError>({
+    queryKey: orderKeys.detail(id),
+    queryFn: () => fetchOrder(id),
   });
 }

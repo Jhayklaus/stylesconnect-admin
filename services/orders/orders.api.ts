@@ -1,9 +1,9 @@
 import { apiClient } from "../client";
-import type { Paginated } from "../types";
+import { ApiError, type ApiEnvelope, type Paginated } from "../types";
 import { MOCKS } from "../mock/config";
 import { applyFilter, applySearch, delay, mockPaginate } from "../mock/transport";
-import { MOCK_ORDERS } from "./orders.mock";
-import type { Order, OrderListParams } from "./orders.types";
+import { MOCK_ORDERS, mockOrderDetail } from "./orders.mock";
+import type { Order, OrderDetail, OrderListParams } from "./orders.types";
 
 const PERIOD_DAYS: Record<string, number> = { "7d": 7, "30d": 30, "90d": 90 };
 
@@ -32,4 +32,19 @@ export async function fetchOrders(params: OrderListParams = {}): Promise<Paginat
 
   const { data } = await apiClient.get<Paginated<Order>>("/admin/orders", { params });
   return data;
+}
+
+/** GET /admin/orders/:id */
+export async function fetchOrder(id: string): Promise<OrderDetail> {
+  if (MOCKS.orders) {
+    await delay();
+    const detail = mockOrderDetail(id);
+    if (!detail) {
+      throw new ApiError({ message: "Order not found", status: 404 });
+    }
+    return detail;
+  }
+
+  const { data } = await apiClient.get<ApiEnvelope<OrderDetail>>(`/admin/orders/${id}`);
+  return data.data;
 }

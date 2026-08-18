@@ -1,9 +1,23 @@
 import { apiClient } from "../client";
-import type { ApiEnvelope, Paginated } from "../types";
+import { ApiError, type ApiEnvelope, type Paginated } from "../types";
+import type { Order } from "../orders/orders.types";
 import { MOCKS } from "../mock/config";
 import { applyFilter, applySearch, applySort, delay, mockPaginate } from "../mock/transport";
-import { MOCK_SHOPPERS, MOCK_SHOPPER_STATS } from "./shoppers.mock";
-import type { Shopper, ShopperListParams, ShopperStats } from "./shoppers.types";
+import {
+  MOCK_SHOPPERS,
+  MOCK_SHOPPER_STATS,
+  mockShopperActivity,
+  mockShopperDetail,
+  mockShopperOrders,
+} from "./shoppers.mock";
+import type {
+  Shopper,
+  ShopperActivity,
+  ShopperDetail,
+  ShopperListParams,
+  ShopperStats,
+  ShopperSubListParams,
+} from "./shoppers.types";
 
 const SORTS: Record<string, (a: Shopper, b: Shopper) => number> = {
   name_asc: (a, b) => a.name.localeCompare(b.name),
@@ -44,5 +58,52 @@ export async function fetchShopperStats(): Promise<ShopperStats> {
   }
 
   const { data } = await apiClient.get<ApiEnvelope<ShopperStats>>("/admin/shoppers/stats");
+  return data.data;
+}
+
+/** GET /admin/shoppers/:id */
+export async function fetchShopper(id: string): Promise<ShopperDetail> {
+  if (MOCKS.shoppers) {
+    await delay();
+    const detail = mockShopperDetail(id);
+    if (!detail) {
+      throw new ApiError({ message: "Shopper not found", status: 404 });
+    }
+    return detail;
+  }
+
+  const { data } = await apiClient.get<ApiEnvelope<ShopperDetail>>(`/admin/shoppers/${id}`);
+  return data.data;
+}
+
+/** GET /admin/shoppers/:id/orders */
+export async function fetchShopperOrders(
+  id: string,
+  params: ShopperSubListParams = {}
+): Promise<Paginated<Order>> {
+  if (MOCKS.shoppers) {
+    await delay();
+    let rows = mockShopperOrders(id);
+    rows = applySearch(rows, params.q, ["order_id"]);
+    rows = applyFilter(rows, params.status, (o) => o.payment_status);
+    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7, `/admin/shoppers/${id}/orders`);
+  }
+
+  const { data } = await apiClient.get<Paginated<Order>>(`/admin/shoppers/${id}/orders`, {
+    params,
+  });
+  return data;
+}
+
+/** GET /admin/shoppers/:id/activity */
+export async function fetchShopperActivity(id: string): Promise<ShopperActivity[]> {
+  if (MOCKS.shoppers) {
+    await delay();
+    return mockShopperActivity(id);
+  }
+
+  const { data } = await apiClient.get<ApiEnvelope<ShopperActivity[]>>(
+    `/admin/shoppers/${id}/activity`
+  );
   return data.data;
 }

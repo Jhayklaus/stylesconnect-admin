@@ -1,9 +1,22 @@
 import { apiClient } from "../client";
-import type { Paginated } from "../types";
+import { ApiError, type ApiEnvelope, type Paginated } from "../types";
 import { MOCKS } from "../mock/config";
 import { applyFilter, applySearch, applySort, delay, mockPaginate } from "../mock/transport";
-import { MOCK_TICKETS, MOCK_TICKET_STATS } from "./tickets.mock";
-import type { Ticket, TicketListParams, TicketStats } from "./tickets.types";
+import {
+  MOCK_TICKETS,
+  MOCK_TICKET_STATS,
+  mockTicketDetail,
+  mockTicketThread,
+} from "./tickets.mock";
+import type {
+  Ticket,
+  TicketChannel,
+  TicketDetail,
+  TicketEntry,
+  TicketListParams,
+  TicketMessage,
+  TicketStats,
+} from "./tickets.types";
 
 /** GET /admin/tickets */
 export async function fetchTickets(
@@ -42,4 +55,59 @@ export async function fetchTicketStats(): Promise<TicketStats> {
 
   const { data } = await apiClient.get<TicketStats>("/admin/tickets/stats");
   return data;
+}
+
+/** GET /admin/tickets/:id */
+export async function fetchTicket(id: string): Promise<TicketDetail> {
+  if (MOCKS.tickets) {
+    await delay();
+    const detail = mockTicketDetail(id);
+    if (!detail) {
+      throw new ApiError({ message: "Ticket not found", status: 404 });
+    }
+    return detail;
+  }
+
+  const { data } = await apiClient.get<ApiEnvelope<TicketDetail>>(`/admin/tickets/${id}`);
+  return data.data;
+}
+
+/** GET /admin/tickets/:id/thread */
+export async function fetchTicketThread(id: string): Promise<TicketEntry[]> {
+  if (MOCKS.tickets) {
+    await delay();
+    return mockTicketThread(id);
+  }
+
+  const { data } = await apiClient.get<ApiEnvelope<TicketEntry[]>>(`/admin/tickets/${id}/thread`);
+  return data.data;
+}
+
+export interface ReplyToTicketBody {
+  body: string;
+  channel: TicketChannel;
+}
+
+/** POST /admin/tickets/:id/replies */
+export async function replyToTicket(
+  id: string,
+  payload: ReplyToTicketBody
+): Promise<TicketMessage> {
+  if (MOCKS.tickets) {
+    await delay();
+    return {
+      kind: "message",
+      id: `TMS-${id}-${Date.now()}`,
+      author: { id: "ADM-1", name: "Styleconnect", avatar_url: null },
+      is_agent: true,
+      body: payload.body,
+      created_at: new Date().toISOString(),
+    };
+  }
+
+  const { data } = await apiClient.post<ApiEnvelope<TicketMessage>>(
+    `/admin/tickets/${id}/replies`,
+    payload
+  );
+  return data.data;
 }

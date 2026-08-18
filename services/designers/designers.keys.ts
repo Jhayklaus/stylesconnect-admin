@@ -6,4 +6,10 @@ export const designerKeys = {
   list: (params: DesignerListParams) => [...designerKeys.lists(), params] as const,
   stats: () => [...designerKeys.all, "stats"] as const,
   detail: (id: string) => [...designerKeys.all, "detail", id] as const,
+  listings: (id: string, params: unknown) =>
+    [...designerKeys.detail(id), "listings", params] as const,
+  transactions: (id: string, params: unknown) =>
+    [...designerKeys.detail(id), "transactions", params] as const,
+  reviews: (id: string, params: unknown) =>
+    [...designerKeys.detail(id), "reviews", params] as const,
 };

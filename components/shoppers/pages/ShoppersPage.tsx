@@ -1,6 +1,7 @@
 "use client";
 
 import { ListFilter, UserRound } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { AdminTopBar } from "@/components/shell";
 import {
   DataTable,
@@ -45,6 +46,7 @@ const SORT_OPTIONS = [
 ];
 
 export function ShoppersPage() {
+  const router = useRouter();
   const params = useListParams({ filterKeys: ["segment", "spend", "sort"] });
 
   const query: ShopperListParams = {
@@ -108,6 +110,7 @@ export function ShoppersPage() {
           columns={shopperColumns}
           rows={data?.data}
           rowKey={(row) => row.id}
+          onRowClick={(row) => router.push(`/customers/shoppers/${row.id}`)}
           isLoading={isLoading}
           error={error}
           skeletonRows={params.perPage}

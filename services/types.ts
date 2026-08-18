@@ -69,3 +69,26 @@ export class ApiError extends Error {
 export interface MessageResponse {
   message: string;
 }
+
+/** One bar of a 5→1 star histogram. */
+export interface RatingBucket {
+  stars: 1 | 2 | 3 | 4 | 5;
+  count: number;
+}
+
+export interface RatingSummary {
+  average: number;
+  total: number;
+  /** Ordered 5→1, as the designs stack them. */
+  distribution: RatingBucket[];
+}
+
+/**
+ * A message split into plain and emphasised runs. Pre-segmented by the API so
+ * bolded entities survive without client-side template parsing. Used by the
+ * shopper activity feed and the ticket thread's system events.
+ */
+export interface ActivitySegment {
+  text: string;
+  strong?: boolean;
+}

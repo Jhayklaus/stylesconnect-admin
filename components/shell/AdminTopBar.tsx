@@ -14,6 +14,8 @@ export interface AdminTopBarProps {
   breadcrumb?: Crumb[];
   /** Right-hand slot. Omit for the default bolt + bell cluster. */
   actions?: ReactNode;
+  /** Extra controls beside the breadcrumb — the ticket detail's prev/next. */
+  leading?: ReactNode;
   className?: string;
 }
 
@@ -23,7 +25,7 @@ export interface AdminTopBarProps {
  * screen, so the header is page-owned data. A layout-level version would need
  * a pathname→config lookup table that drifts as routes are added.
  */
-export function AdminTopBar({ title, breadcrumb, actions, className }: AdminTopBarProps) {
+export function AdminTopBar({ title, breadcrumb, actions, leading, className }: AdminTopBarProps) {
   const { openSidebar } = useAdminShell();
 
   return (
@@ -45,6 +47,7 @@ export function AdminTopBar({ title, breadcrumb, actions, className }: AdminTopB
         ) : (
           <h1 className="font-inter font-medium text-xl leading-7 text-text-900">{title}</h1>
         )}
+        {leading}
       </div>
 
       <div className="flex items-center gap-2.5">

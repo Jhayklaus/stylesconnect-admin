@@ -6,4 +6,5 @@ export const ticketKeys = {
   list: (params: TicketListParams) => [...ticketKeys.lists(), params] as const,
   stats: () => [...ticketKeys.all, "stats"] as const,
   detail: (id: string) => [...ticketKeys.all, "detail", id] as const,
+  thread: (id: string) => [...ticketKeys.all, "detail", id, "thread"] as const,
 };

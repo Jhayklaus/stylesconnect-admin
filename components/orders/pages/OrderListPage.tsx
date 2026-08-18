@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { AdminTopBar } from "@/components/shell";
 import {
   DataTable,
@@ -44,6 +45,7 @@ const PAYMENT_OPTIONS = [
 ];
 
 export function OrderListPage() {
+  const router = useRouter();
   const params = useListParams({ filterKeys: ["period", "fulfillment", "payment"] });
 
   const query: OrderListParams = {
@@ -95,6 +97,7 @@ export function OrderListPage() {
           columns={orderColumns}
           rows={data?.data}
           rowKey={(row) => row.id}
+          onRowClick={(row) => router.push(`/orders/${row.id}`)}
           isLoading={isLoading}
           error={error}
           skeletonRows={params.perPage}

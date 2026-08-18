@@ -7,6 +7,15 @@ export interface OrderCustomer {
   avatar_url: string | null;
 }
 
+export interface OrderItem {
+  id: string;
+  name: string;
+  image_url: string | null;
+  quantity: number;
+  unit_price: number;
+  total: number;
+}
+
 export interface Order {
   id: string;
   order_id: string;
@@ -20,6 +29,20 @@ export interface Order {
   /** Absent when there's no secondary state to show. */
   fulfillment_status: FulfillmentStatus | null;
   customer: OrderCustomer;
+}
+
+export interface OrderDetail extends Order {
+  customer: OrderCustomer & {
+    email: string;
+    phone: string;
+    address: string;
+  };
+  payment_method: string;
+  shipping_address: string;
+  notes: string | null;
+  items: OrderItem[];
+  prev_id: string | null;
+  next_id: string | null;
 }
 
 export interface OrderListParams {

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ListFilter } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { AdminTopBar } from "@/components/shell";
 import {
   DataTable,
@@ -46,6 +47,7 @@ const SORT_OPTIONS = [
 ];
 
 export function ListingsPage() {
+  const router = useRouter();
   const params = useListParams({ tab: "reviewed", filterKeys: ["status", "category", "sort"] });
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -107,6 +109,7 @@ export function ListingsPage() {
           columns={listingColumns}
           rows={data?.data}
           rowKey={(row) => row.id}
+          onRowClick={(row) => router.push(`/listings/${row.id}`)}
           isLoading={isLoading}
           error={error}
           skeletonRows={params.perPage}

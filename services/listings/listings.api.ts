@@ -1,9 +1,14 @@
 import { apiClient } from "../client";
-import type { Paginated } from "../types";
+import { ApiError, type ApiEnvelope, type Paginated } from "../types";
 import { MOCKS } from "../mock/config";
 import { applyFilter, applySearch, applySort, delay, mockPaginate } from "../mock/transport";
-import { MOCK_LISTINGS } from "./listings.mock";
-import type { Listing, ListingListParams } from "./listings.types";
+import { MOCK_LISTINGS, mockListingDetail, mockListingOrders } from "./listings.mock";
+import type {
+  Listing,
+  ListingDetail,
+  ListingListParams,
+  ListingOrderRow,
+} from "./listings.types";
 
 const SORTS: Record<string, (a: Listing, b: Listing) => number> = {
   recent: (a, b) => +new Date(b.created_at) - +new Date(a.created_at),
@@ -27,5 +32,40 @@ export async function fetchListings(
   }
 
   const { data } = await apiClient.get<Paginated<Listing>>("/admin/listings", { params });
+  return data;
+}
+
+/** GET /admin/listings/:id */
+export async function fetchListing(id: string): Promise<ListingDetail> {
+  if (MOCKS.listings) {
+    await delay();
+    const detail = mockListingDetail(id);
+    if (!detail) {
+      throw new ApiError({ message: "Listing not found", status: 404 });
+    }
+    return detail;
+  }
+
+  const { data } = await apiClient.get<ApiEnvelope<ListingDetail>>(`/admin/listings/${id}`);
+  return data.data;
+}
+
+/** GET /admin/listings/:id/orders */
+export async function fetchListingOrders(
+  id: string,
+  params: { page?: number; per_page?: number; q?: string; status?: string } = {}
+): Promise<Paginated<ListingOrderRow>> {
+  if (MOCKS.listings) {
+    await delay();
+    let rows = mockListingOrders(id);
+    rows = applySearch(rows, params.q, ["order_id"]);
+    rows = applyFilter(rows, params.status, (o) => o.status);
+    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7, `/admin/listings/${id}/orders`);
+  }
+
+  const { data } = await apiClient.get<Paginated<ListingOrderRow>>(
+    `/admin/listings/${id}/orders`,
+    { params }
+  );
   return data;
 }

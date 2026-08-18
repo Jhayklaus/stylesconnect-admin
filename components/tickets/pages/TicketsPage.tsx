@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowDownUp, Bell, ListFilter, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { AdminTopBar } from "@/components/shell";
 import {
   Button,
@@ -41,6 +42,7 @@ const SORT_OPTIONS = [
 ];
 
 export function TicketsPage() {
+  const router = useRouter();
   const params = useListParams({ filterKeys: ["status", "sort"] });
 
   const query: TicketListParams = {
@@ -117,6 +119,7 @@ export function TicketsPage() {
           columns={ticketColumns}
           rows={data?.data}
           rowKey={(row) => row.id}
+          onRowClick={(row) => router.push(`/tickets/${row.id}`)}
           isLoading={isLoading}
           error={error}
           skeletonRows={params.perPage}
