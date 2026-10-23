@@ -9,7 +9,7 @@ export function OrderProgress({
   estimatedDeliveryAt,
 }: {
   stage: OrderStage;
-  estimatedDeliveryAt: string;
+  estimatedDeliveryAt: string | null;
 }) {
   const currentIndex = ORDER_STAGES.findIndex((s) => s.value === stage);
 
@@ -18,7 +18,9 @@ export function OrderProgress({
       <p className="bg-bg-soft px-5 py-3.5 font-jost text-sm leading-5 text-text-900">
         Estimated delivery:{" "}
         <span className="font-medium">
-          {formatDateLong(estimatedDeliveryAt)} {formatTime(estimatedDeliveryAt)}
+          {estimatedDeliveryAt
+            ? `${formatDateLong(estimatedDeliveryAt)} ${formatTime(estimatedDeliveryAt)}`
+            : "Not scheduled yet"}
         </span>
       </p>
 

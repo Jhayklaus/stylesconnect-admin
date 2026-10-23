@@ -26,11 +26,6 @@ export const designerColumns: Column<Designer>[] = [
     cell: (row) => formatCount(row.active_listings),
   },
   {
-    id: "subscription",
-    header: "Subscription",
-    cell: (row) => <StatusBadge status={row.subscription} domain="designer" />,
-  },
-  {
     id: "total_sales",
     header: "Total sales",
     cell: (row) => formatNaira(row.total_sales),

@@ -1,7 +1,7 @@
 import { Mail, Trash2, UserRound } from "lucide-react";
 import { ActionMenu, Avatar, StatusBadge, type Column } from "@/components/ui";
 import { formatDateShort, formatDateTimeShort, formatMonthYear } from "@/lib/format";
-import type { Member } from "@/services/members";
+import { TEAM_ENDPOINTS_LIVE, type Member } from "@/services/members";
 
 export type MemberAction = "resend" | "role" | "remove";
 
@@ -12,7 +12,7 @@ export type MemberAction = "resend" | "role" | "remove";
 export function memberColumns(
   onAction: (action: MemberAction, member: Member) => void
 ): Column<Member>[] {
-  return [
+  const columns: Column<Member>[] = [
   {
     id: "name",
     header: "Name",
@@ -21,7 +21,7 @@ export function memberColumns(
     // instead of the "Since ..." line.
     cell: (row) => (
       <div className="flex items-center gap-3">
-        <Avatar src={null} name={row.name} size="md" />
+        <Avatar src={row.avatar_url} name={row.name} size="md" />
         <div className="min-w-0">
           <p className="truncate text-text-900">{row.name}</p>
           <p className="truncate font-jost text-xs leading-4 text-text-500">
@@ -85,4 +85,6 @@ export function memberColumns(
       ),
     },
   ];
+
+  return TEAM_ENDPOINTS_LIVE ? columns : columns.filter((c) => c.id !== "actions");
 }

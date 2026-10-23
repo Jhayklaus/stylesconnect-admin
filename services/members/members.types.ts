@@ -13,6 +13,7 @@ export interface Member {
   id: string;
   name: string;
   email: string;
+  avatar_url: string | null;
   role: MemberRole;
   status: MemberStatus;
   /** When they joined — drives the "Since June, 2021" subtitle. */
@@ -20,6 +21,27 @@ export interface Member {
   added_at: string;
   /** Null for members who were invited but have never signed in. */
   last_login_at: string | null;
+}
+
+/**
+ * The list currently comes from /admin/admins, which ignores search and
+ * filters, and invite / change role / remove / resend have no backend yet.
+ * Flip this when the team endpoints ship — it un-hides the filters, the
+ * Invite button and the row menu together.
+ */
+export const TEAM_ENDPOINTS_LIVE = false;
+
+/** A row from GET /admin/admins — the raw user model. */
+export interface AdminRow {
+  id: number;
+  uuid: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string;
+  profile_picture_url: string | null;
+  last_login_at: string | null;
+  created_at: string;
+  deleted_at: string | null;
 }
 
 export interface MemberListParams {

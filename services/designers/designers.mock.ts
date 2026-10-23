@@ -19,12 +19,13 @@ export const MOCK_DESIGNERS: Designer[] = PEOPLE.map((name, i) => {
 
   return {
     id: `DSG-${String(1000 + i)}`,
-    name,
+    name: `${name.split(" ")[0]} Studio`,
+    owner_name: name,
     email: emailFor(name),
     avatar_url: null,
     active_listings: intBetween(0, 96, `listings-${name}`),
-    subscription: seeded(`sub-${name}`) > 0.55 ? "inactive" : "active",
     total_sales: intBetween(1, 250, `sales-${name}`) * 1_000_000,
+    is_verified: seeded(`verified-${name}`) > 0.3,
     status,
     joined_at: daysAgo(intBetween(3, 900, `joined-${name}`)),
   };
@@ -77,15 +78,14 @@ export function mockDesignerDetail(id: string): DesignerDetail | undefined {
   return {
     ...base,
     customer_id: `#${intBetween(1_000_000, 9_999_999, seed)}`,
+    user_id: `USR-${id}`,
     phone: `+234${intBetween(7_000_000_000, 9_099_999_999, `phone-${id}`)}`,
     address: pick(STREETS, `address-${id}`),
     country: pick(COUNTRIES, `country-${id}`),
     date_of_birth: daysAgo(intBetween(7_000, 14_000, `dob-${id}`)),
     gender: pick(GENDERS, `gender-${id}`),
     last_login_at: daysAgo(intBetween(0, 20, `lastlogin-${id}`)),
-    subscription_plan: base.subscription === "active" ? "Active (3 months)" : "Inactive",
-    subscription_started_at: base.joined_at,
-    subscription_ends_at: daysAgo(-intBetween(10, 200, `subend-${id}`)),
+    verification_status: base.is_verified ? "verified" : "pending",
     listing_stats: { total_listed: live + unlisted, live, unlisted },
     prev_id: index > 0 ? MOCK_DESIGNERS[index - 1].id : null,
     next_id: index < MOCK_DESIGNERS.length - 1 ? MOCK_DESIGNERS[index + 1].id : null,
@@ -102,9 +102,11 @@ export function mockDesignerTransactions(id: string): DesignerTransaction[] {
     const roll = seeded(`dtxn-status-${id}-${i}`);
     return {
       id: `DTX-${id}-${i}`,
-      reference: `#AD-${String(intBetween(100_000, 999_999, `dtxn-${id}-${i}`)).slice(0, 6)}`,
+      reference: `chk_${intBetween(100_000, 999_999, `dtxn-${id}-${i}`)}`,
       amount: intBetween(45, 320, `dtxn-amount-${id}-${i}`) * 1_000,
-      type: seeded(`dtxn-type-${id}-${i}`) > 0.5 ? "subscription" : "order",
+      order_total: intBetween(50, 340, `dtxn-total-${id}-${i}`) * 1_000,
+      type: "order",
+      order_id: `#${intBetween(10_000_000, 99_999_999, `dtxn-order-${id}-${i}`)}`,
       payment_method: pick(CARDS, `dtxn-card-${id}-${i}`),
       status: roll > 0.86 ? "failed" : roll > 0.7 ? "pending" : "paid",
       created_at: daysAgo(intBetween(0, 200, `dtxn-date-${id}-${i}`)),

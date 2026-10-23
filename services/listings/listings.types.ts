@@ -1,5 +1,9 @@
 import type { RatingSummary } from "../types";
-export type ListingStatus = "published" | "inactive" | "unlisted";
+export type ListingStatus = "published" | "draft";
+/**
+ * There's no listing approval step, so the API always reports "reviewed" and
+ * filtering by "awaiting_review" returns nothing. Kept for when moderation lands.
+ */
 export type ListingReview = "reviewed" | "awaiting_review";
 
 export interface Listing {
@@ -11,10 +15,11 @@ export interface Listing {
   image_url: string;
   in_stock: boolean;
   total_sold: number;
-  /** Naira, whole units. */
+  /** Naira. */
   unit_price: number;
   status: ListingStatus;
   review_state: ListingReview;
+  is_featured: boolean;
   created_at: string;
 }
 
@@ -24,6 +29,7 @@ export interface ListingListParams {
   q?: string;
   review_state?: ListingReview;
   status?: ListingStatus | "all";
+  /** Category slug or name. */
   category?: string;
   sort?: "recent" | "price_desc" | "sold_desc";
 }
@@ -50,6 +56,8 @@ export interface ListingDetail extends Listing {
   product_type: string;
   /** Who it's cut for — "Unisex", "Women". */
   audience: string;
+  /** "Short Sleeve"; null for garments without sleeves. */
+  sleeve_type: string | null;
   sizes: ListingSizes;
   /** Production window, e.g. "2—3 weeks". */
   timeline: string;

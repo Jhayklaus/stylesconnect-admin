@@ -28,7 +28,7 @@ export { SearchInput } from "./SearchInput";
 export { Skeleton } from "./Skeleton";
 export { SpecChip, SpecTable } from "./SpecTable";
 export type { SpecRow, SpecTableProps } from "./SpecTable";
-export { StatCard, StatCardRow } from "./StatCard";
+export { StatCard, StatCardRow, statDelta } from "./StatCard";
 export type { StatCardProps, StatDelta } from "./StatCard";
 export { StatusBadge } from "./StatusBadge";
 export { SegmentedTabs, UnderlineTabs } from "./Tabs";

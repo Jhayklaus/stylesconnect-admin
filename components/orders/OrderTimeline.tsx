@@ -28,10 +28,13 @@ export function OrderTimeline({ events }: { events: OrderTimelineEntry[] }) {
               <div className={last ? "pb-0" : "pb-6"}>
                 <p className="font-jost text-sm leading-5">
                   <span className="font-medium text-text-900">{event.title}</span>
-                  <span className="text-text-300">
-                    {" • "}
-                    {formatDateLong(event.created_at)} {formatTime(event.created_at)}
-                  </span>
+                  {/* Steps that haven't happened yet have no timestamp. */}
+                  {event.created_at && (
+                    <span className="text-text-300">
+                      {" • "}
+                      {formatDateLong(event.created_at)} {formatTime(event.created_at)}
+                    </span>
+                  )}
                 </p>
                 <p className="mt-1 font-jost text-sm leading-5 text-text-500">
                   {event.description}

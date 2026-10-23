@@ -9,35 +9,19 @@ import {
   EmptyState,
   FilterDropdown,
   SearchInput,
-  SegmentedTabs,
   TableFooter,
   Toolbar,
 } from "@/components/ui";
 import { useListings } from "@/hooks/listings/useListings";
 import { useListParams } from "@/hooks/useListParams";
-import type { ListingListParams, ListingReview, ListingStatus } from "@/services/listings";
+import { useAttributes } from "@/hooks/attributes/useAttributes";
+import type { ListingListParams, ListingStatus } from "@/services/listings";
 import { listingColumns } from "../listingColumns";
-
-const TABS = [
-  { value: "reviewed", label: "Reviewed" },
-  { value: "awaiting_review", label: "Awaiting review" },
-];
 
 const STATUS_OPTIONS = [
   { value: "all", label: "All statuses" },
   { value: "published", label: "Published" },
-  { value: "inactive", label: "Inactive" },
-  { value: "unlisted", label: "Unlisted" },
-];
-
-const CATEGORY_OPTIONS = [
-  { value: "all", label: "All categories" },
-  { value: "Shirts", label: "Shirts" },
-  { value: "Jeans", label: "Jeans" },
-  { value: "Dresses", label: "Dresses" },
-  { value: "Outerwear", label: "Outerwear" },
-  { value: "Accessories", label: "Accessories" },
-  { value: "Footwear", label: "Footwear" },
+  { value: "draft", label: "Draft" },
 ];
 
 const SORT_OPTIONS = [
@@ -48,14 +32,19 @@ const SORT_OPTIONS = [
 
 export function ListingsPage() {
   const router = useRouter();
-  const params = useListParams({ tab: "reviewed", filterKeys: ["status", "category", "sort"] });
+  const params = useListParams({ filterKeys: ["status", "category", "sort"] });
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const { data: categories } = useAttributes("categories");
+
+  const categoryOptions = [
+    { value: "all", label: "All categories" },
+    ...(categories ?? []).map((c) => ({ value: c.slug, label: c.name })),
+  ];
 
   const query: ListingListParams = {
     page: params.page,
     per_page: params.perPage,
     q: params.q || undefined,
-    review_state: params.tab as ListingReview,
     status: params.filters.status as ListingStatus | "all",
     category: params.filters.category,
     sort: params.filters.sort === "all" ? undefined : (params.filters.sort as ListingListParams["sort"]),
@@ -68,16 +57,6 @@ export function ListingsPage() {
       <AdminTopBar title="Listings" />
 
       <div className="flex flex-col gap-6 px-8 py-6">
-        <SegmentedTabs
-          tabs={TABS}
-          value={params.tab}
-          onChange={(v) => {
-            setSelectedIds([]);
-            params.setTab(v);
-          }}
-          className="self-start"
-        />
-
         <Toolbar
           left={<SearchInput value={params.q} onChange={params.setQuery} className="w-[330px]" />}
           right={
@@ -90,7 +69,7 @@ export function ListingsPage() {
               />
               <FilterDropdown
                 label="Category"
-                options={CATEGORY_OPTIONS}
+                options={categoryOptions}
                 value={params.filters.category}
                 onChange={(v) => params.setFilter("category", v)}
               />

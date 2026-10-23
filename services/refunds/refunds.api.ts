@@ -33,12 +33,7 @@ export async function fetchRefunds(params: RefundListParams = {}): Promise<Pagin
       rows = rows.filter((r) => +new Date(r.requested_at) >= cutoff);
     }
 
-    return mockPaginate(
-      rows,
-      params.page ?? 1,
-      params.per_page ?? 7,
-      "/admin/transactions/refunds"
-    );
+    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7);
   }
 
   const { data } = await apiClient.get<Paginated<Refund>>("/admin/transactions/refunds", {

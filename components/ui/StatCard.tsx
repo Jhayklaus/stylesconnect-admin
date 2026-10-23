@@ -16,6 +16,19 @@ export interface StatDelta {
   variant?: "text" | "pill";
 }
 
+/**
+ * Builds a delta from a signed API value. The API sends null when there's no
+ * prior period to compare against — the badge is hidden then, since "+0%"
+ * would read as a real flat trend.
+ */
+export function statDelta(
+  value: number | null | undefined,
+  variant?: StatDelta["variant"]
+): StatDelta | undefined {
+  if (value === null || value === undefined) return undefined;
+  return { direction: value < 0 ? "down" : "up", value: Math.abs(value), variant };
+}
+
 export interface StatCardProps {
   label: string;
   /** `undefined` renders an em-dash — "0" would read as a real zero. */

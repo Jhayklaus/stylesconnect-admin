@@ -3,15 +3,26 @@ export type PaymentMethod = "debit_card" | "bank_transfer";
 /** What the payment was for — the "Description" column. */
 export type PaymentKind = "order" | "subscription";
 
+export interface PaymentCustomer {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+  email: string;
+}
+
 export interface Payment {
   id: string;
-  /** Display form, hash included: "#AD-HJRT2T". */
+  /** The payment gateway's reference: "chk_eXLdQtOyJvjs4P88". */
   transaction_id: string;
   kind: PaymentKind;
-  method: PaymentMethod;
-  /** Naira, whole units. */
+  /** Null when the gateway didn't report how the shopper paid. */
+  method: PaymentMethod | null;
+  /** Naira. */
   amount: number;
   paid_at: string;
+  /** The order paid for; null for subscription payments. */
+  order: { id: string; order_id: string } | null;
+  customer: PaymentCustomer | null;
 }
 
 export interface PaymentListParams {
@@ -47,12 +58,14 @@ export interface PaymentSubscription {
 
 /** GET /admin/transactions/payments/:id — the details drawer. */
 export interface PaymentDetail extends Payment {
-  /** Display form: "Mastercard •• 1038". */
-  card_label: string;
+  /** Display form: "Mastercard •• 1038". Null when the gateway didn't send card details. */
+  card_label: string | null;
   /** Null for one-off order payments — the drawer hides that section. */
   subscription: PaymentSubscription | null;
   /** The processor's own reference: "STX12349465". */
-  transaction_ref: string;
+  transaction_ref: string | null;
+  /** Which gateway processed it: "pandascrow". */
+  gateway: string;
   description: string;
   fee: number;
   tax: number;

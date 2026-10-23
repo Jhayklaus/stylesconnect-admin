@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ShoppingBag, UserCheck, Users, Wallet } from "lucide-react";
 import { AdminTopBar } from "@/components/shell";
-import { StatCardRow } from "@/components/ui";
+import { StatCardRow, statDelta } from "@/components/ui";
 import { useOverview } from "@/hooks/overview/useOverview";
 import type { RevenueRange } from "@/services/overview";
 import { RecentOrdersCard } from "../RecentOrdersCard";
@@ -30,25 +30,25 @@ export function OverviewPage() {
               label: "Total orders",
               value: stats?.total_orders,
               icon: <ShoppingBag className={ICON} aria-hidden />,
-              delta: { direction: "up", value: stats?.total_orders_delta ?? 0 },
+              delta: statDelta(stats?.total_orders_delta),
             },
             {
               label: "Active buyers",
               value: stats?.active_buyers,
               icon: <Users className={ICON} aria-hidden />,
-              delta: { direction: "up", value: stats?.active_buyers_delta ?? 0 },
+              delta: statDelta(stats?.active_buyers_delta),
             },
             {
               label: "Active designers",
               value: stats?.active_designers,
               icon: <Wallet className={ICON} aria-hidden />,
-              delta: { direction: "up", value: stats?.active_designers_delta ?? 0 },
+              delta: statDelta(stats?.active_designers_delta),
             },
             {
               label: "Pending verification",
               value: stats?.pending_verification,
               icon: <UserCheck className={ICON} aria-hidden />,
-              delta: { direction: "up", value: stats?.pending_verification_delta ?? 0 },
+              delta: statDelta(stats?.pending_verification_delta),
             },
           ]}
         />

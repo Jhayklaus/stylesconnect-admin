@@ -28,7 +28,7 @@ export async function fetchListings(
     rows = applyFilter(rows, params.status, (l) => l.status);
     rows = applyFilter(rows, params.category, (l) => l.category);
     rows = applySort(rows, params.sort, SORTS);
-    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7, "/admin/listings");
+    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7);
   }
 
   const { data } = await apiClient.get<Paginated<Listing>>("/admin/listings", { params });
@@ -60,7 +60,7 @@ export async function fetchListingOrders(
     let rows = mockListingOrders(id);
     rows = applySearch(rows, params.q, ["order_id"]);
     rows = applyFilter(rows, params.status, (o) => o.status);
-    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7, `/admin/listings/${id}/orders`);
+    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7);
   }
 
   const { data } = await apiClient.get<Paginated<ListingOrderRow>>(
@@ -68,4 +68,17 @@ export async function fetchListingOrders(
     { params }
   );
   return data;
+}
+
+/** PATCH /admin/listings/:id/feature — flips `is_featured`. */
+export async function toggleListingFeatured(id: string): Promise<void> {
+  if (MOCKS.listings) {
+    await delay();
+    const listing = MOCK_LISTINGS.find((l) => l.id === id);
+    if (!listing) throw new ApiError({ message: "Listing not found", status: 404 });
+    listing.is_featured = !listing.is_featured;
+    return;
+  }
+
+  await apiClient.patch(`/admin/listings/${id}/feature`);
 }

@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { Drawer, EmptyState, Skeleton } from "@/components/ui";
 import { usePaymentDetail } from "@/hooks/payments/usePayments";
-import { formatDateLong, formatNaira, formatTime } from "@/lib/format";
+import { formatDateLong, formatNaira, formatTime, titleCase } from "@/lib/format";
 import { PAYMENT_METHOD_LABEL } from "@/services/payments";
 
 /** Tinted caption band that separates the drawer's groups. */
@@ -56,7 +56,9 @@ export function TransactionDrawer({
             <p className="font-inter font-medium text-[32px] leading-10 text-text-900">
               {formatNaira(data.amount)}
             </p>
-            <p className="font-jost text-sm leading-5 text-text-500">{data.card_label}</p>
+            {data.card_label && (
+              <p className="font-jost text-sm leading-5 text-text-500">{data.card_label}</p>
+            )}
           </div>
 
           {data.subscription && (
@@ -81,17 +83,24 @@ export function TransactionDrawer({
               label="Date & time"
               value={`${formatDateLong(data.paid_at)} ${formatTime(data.paid_at)}`}
             />
-            <Row label="Transaction ID" value={data.transaction_ref} />
+            <Row label="Transaction ID" value={data.transaction_ref ?? data.transaction_id} />
             <Row
               label="Payment method"
               value={
-                <>
-                  {PAYMENT_METHOD_LABEL[data.method]}{" "}
-                  <span className="font-normal text-text-500">({data.card_label})</span>
-                </>
+                data.method ? (
+                  <>
+                    {PAYMENT_METHOD_LABEL[data.method]}
+                    {data.card_label && (
+                      <span className="font-normal text-text-500"> ({data.card_label})</span>
+                    )}
+                  </>
+                ) : (
+                  titleCase(data.gateway)
+                )
               }
             />
             <Row label="Description" value={data.description} />
+            {data.customer && <Row label="Customer" value={data.customer.name} />}
           </dl>
 
           <SectionBand>Amount summary</SectionBand>

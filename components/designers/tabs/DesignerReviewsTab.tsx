@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { CalendarDays, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import {
   Avatar,
   CopyButton,
@@ -27,13 +27,11 @@ const RATING_OPTIONS = [
   { value: "1", label: "1 star" },
 ];
 
-const PRODUCT_OPTIONS = [{ value: "all", label: "All products" }];
-
-const PERIOD_OPTIONS = [
-  { value: "all", label: "Date posted" },
-  { value: "7d", label: "Last 7 days" },
-  { value: "30d", label: "Last 30 days" },
-  { value: "90d", label: "Last 90 days" },
+const STATUS_OPTIONS = [
+  { value: "all", label: "All reviews" },
+  { value: "approved", label: "Approved" },
+  { value: "pending", label: "Pending" },
+  { value: "rejected", label: "Rejected" },
 ];
 
 function ReviewCard({ review }: { review: DesignerReviewItem }) {
@@ -99,12 +97,12 @@ export function DesignerReviewsTab({
   detail: DesignerDetail | undefined;
   isLoading?: boolean;
 }) {
-  const params = useListParams({ perPage: 5, filterKeys: ["rating", "product", "period"] });
+  const params = useListParams({ perPage: 5, filterKeys: ["rating", "status"] });
   const { data, isLoading, error } = useDesignerReviews(designerId, {
     page: params.page,
     per_page: params.perPage,
     rating: params.filters.rating,
-    period: params.filters.period as "all" | "7d" | "30d" | "90d",
+    status: params.filters.status,
   });
 
   return (
@@ -124,19 +122,11 @@ export function DesignerReviewsTab({
           onChange={(v) => params.setFilter("rating", v)}
         />
         <FilterDropdown
-          label="All products"
+          label="All reviews"
           align="start"
-          options={PRODUCT_OPTIONS}
-          value={params.filters.product}
-          onChange={(v) => params.setFilter("product", v)}
-        />
-        <FilterDropdown
-          label="Date posted"
-          align="start"
-          icon={<CalendarDays className="h-4 w-4 shrink-0" aria-hidden />}
-          options={PERIOD_OPTIONS}
-          value={params.filters.period}
-          onChange={(v) => params.setFilter("period", v)}
+          options={STATUS_OPTIONS}
+          value={params.filters.status}
+          onChange={(v) => params.setFilter("status", v)}
         />
       </div>
 

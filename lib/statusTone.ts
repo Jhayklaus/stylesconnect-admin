@@ -29,6 +29,7 @@ export const DEFAULT_STATUS_TONE: Record<string, StatusTone> = {
   verified: "success",
   delivered: "success",
   completed: "success",
+  confirmed: "success",
   resolved: "success",
   open: "success",
 

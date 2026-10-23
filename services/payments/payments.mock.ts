@@ -1,4 +1,4 @@
-import { daysAgo, intBetween, pick, seeded } from "../mock/seed";
+import { PEOPLE, daysAgo, emailFor, intBetween, pick, seeded } from "../mock/seed";
 import type { Payment, PaymentDetail, PaymentKind, PaymentMethod } from "./payments.types";
 
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789".split("");
@@ -25,6 +25,16 @@ export const MOCK_PAYMENTS: Payment[] = Array.from({ length: 24 }, (_, i) => {
         ? 250_000
         : intBetween(45, 980, `amount-${i}`) * 1_000,
     paid_at: daysAgo(intBetween(0, 180, `paid-${i}`)),
+    order:
+      kind === "order"
+        ? { id: `ORD-${4000 + i}`, order_id: `#${intBetween(10_000_000, 99_999_999, `payorder-${i}`)}` }
+        : null,
+    customer: {
+      id: `SHP-${2000 + (i % PEOPLE.length)}`,
+      name: PEOPLE[i % PEOPLE.length],
+      avatar_url: null,
+      email: emailFor(PEOPLE[i % PEOPLE.length]),
+    },
   };
 });
 
@@ -52,6 +62,7 @@ export function mockPaymentDetail(id: string): PaymentDetail | undefined {
           }
         : null,
     transaction_ref: `STX${intBetween(10_000_000, 99_999_999, `txnref-${id}`)}`,
+    gateway: "pandascrow",
     description:
       base.kind === "subscription" ? "Payment for subscription" : "Payment for order",
     fee,

@@ -5,8 +5,11 @@ import type { AdminUser } from "./auth.types";
  * in the sidebar card across every design frame.
  */
 export const MOCK_ADMIN: AdminUser = {
-  id: "ADM-1",
+  id: 1,
+  user_uuid: "ADM-1",
   name: "Sophia Williams",
+  first_name: "Sophia",
+  last_name: "Williams",
   email: "sophia.williams@styleconnect.com",
   avatar_url: null,
   roles: ["admin"],

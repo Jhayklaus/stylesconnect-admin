@@ -22,6 +22,7 @@ export const MOCK_SHOPPERS: Shopper[] = PEOPLE.map((name, i) => {
     total_spend: intBetween(1, 250, `spend-${name}`) * 1_000_000,
     status,
     last_order_at: daysAgo(intBetween(1, 400, `lastorder-${name}`)),
+    joined_at: daysAgo(intBetween(400, 900, `joined-${name}`)),
   };
 });
 
@@ -87,6 +88,7 @@ export function mockShopperActivity(id: string): ShopperActivity[] {
     {
       id: `ACT-${id}-1`,
       kind: "account",
+      action: "account.name_changed",
       segments: [
         { text: "Account name changed from " },
         { text: "Mark Andrew", strong: true },
@@ -98,12 +100,14 @@ export function mockShopperActivity(id: string): ShopperActivity[] {
     {
       id: `ACT-${id}-2`,
       kind: "account",
+      action: "account.password_changed",
       segments: [{ text: "Password changed successfully" }],
       created_at: now,
     },
     {
       id: `ACT-${id}-3`,
       kind: "order",
+      action: "order.ready_for_shipping",
       segments: [
         { text: "Order " },
         { text: "ID-264ETY", strong: true },
@@ -114,6 +118,7 @@ export function mockShopperActivity(id: string): ShopperActivity[] {
     {
       id: `ACT-${id}-4`,
       kind: "payment",
+      action: "payment.transferred",
       segments: [
         { text: "Total of " },
         { text: "₦500,00", strong: true },
@@ -125,6 +130,7 @@ export function mockShopperActivity(id: string): ShopperActivity[] {
     {
       id: `ACT-${id}-5`,
       kind: "order",
+      action: "order.confirmed",
       segments: [
         { text: "Confirmed request order for " },
         { text: "ID-264ETY", strong: true },

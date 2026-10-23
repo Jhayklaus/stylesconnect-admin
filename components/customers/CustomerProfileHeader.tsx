@@ -9,7 +9,7 @@ export interface CustomerProfileHeaderProps {
   avatarUrl?: string | null;
   /** Display form including the hash — "#4536546". */
   customerId: string | undefined;
-  lastLoginAt: string | undefined;
+  lastLoginAt: string | null | undefined;
   isLoading?: boolean;
   onPrev?: () => void;
   onNext?: () => void;

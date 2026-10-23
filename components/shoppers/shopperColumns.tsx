@@ -30,6 +30,6 @@ export const shopperColumns: Column<Shopper>[] = [
   {
     id: "last_order_at",
     header: "Last order",
-    cell: (row) => formatDateShort(row.last_order_at),
+    cell: (row) => (row.last_order_at ? formatDateShort(row.last_order_at) : "—"),
   },
 ];

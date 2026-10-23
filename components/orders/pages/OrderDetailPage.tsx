@@ -51,9 +51,9 @@ function PaymentRow({ label, value, hint }: { label: string; value: string; hint
 }
 
 function CustomerRail({ detail }: { detail: OrderDetail }) {
-  const mapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    detail.shipping_address
-  )}`;
+  const mapsHref = detail.shipping_address
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(detail.shipping_address)}`
+    : null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -79,7 +79,11 @@ function CustomerRail({ detail }: { detail: OrderDetail }) {
           <div className="grid grid-cols-[80px_1fr] items-center gap-2">
             <dt className="font-jost text-sm leading-5 text-text-500">Phone</dt>
             <dd className="min-w-0">
-              <InfoChip href={`tel:${detail.customer.phone}`}>{detail.customer.phone}</InfoChip>
+              {detail.customer.phone ? (
+                <InfoChip href={`tel:${detail.customer.phone}`}>{detail.customer.phone}</InfoChip>
+              ) : (
+                <span className="font-jost text-sm leading-5 text-text-500">—</span>
+              )}
             </dd>
           </div>
         </dl>
@@ -89,7 +93,7 @@ function CustomerRail({ detail }: { detail: OrderDetail }) {
         <h2 className="font-inter font-medium text-base leading-6 text-text-900">
           Delivery address
         </h2>
-        <p className="font-jost text-sm leading-5 text-text-900">{detail.shipping_address}</p>
+        <p className="font-jost text-sm leading-5 text-text-900">{detail.shipping_address ?? "—"}</p>
 
         {/* The design shows an embedded static map. That needs a keyed tile
             provider, so this is a placeholder that links out instead. */}
@@ -100,15 +104,17 @@ function CustomerRail({ detail }: { detail: OrderDetail }) {
           </span>
         </div>
 
-        <a
-          href={mapsHref}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1.5 font-jost text-sm leading-5 text-text-900 underline"
-        >
-          <Navigation className="h-3.5 w-3.5" aria-hidden />
-          View on map
-        </a>
+        {mapsHref && (
+          <a
+            href={mapsHref}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 font-jost text-sm leading-5 text-text-900 underline"
+          >
+            <Navigation className="h-3.5 w-3.5" aria-hidden />
+            View on map
+          </a>
+        )}
       </section>
     </div>
   );
@@ -130,7 +136,9 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
   }
 
   const itemCount = data?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
-  const subtotal = data?.items.reduce((sum, item) => sum + item.total, 0) ?? 0;
+  const shippingStops = data
+    ? [data.shipping.origin, data.shipping.destination].filter((a): a is string => Boolean(a))
+    : [];
 
   return (
     <>
@@ -141,7 +149,7 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
         title={
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="font-inter font-medium text-xl leading-7 text-text-900">
-              Order {data?.reference}
+              Order {data?.order_id}
             </h1>
             {data && (
               <>
@@ -166,11 +174,15 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
               <span>
                 Order from: <span className="text-text-900 underline">{data.store}</span>
               </span>
-              <span aria-hidden>•</span>
-              <span className="inline-flex items-center gap-1.5">
-                Payment ID: <span className="text-text-900">{data.payment_id}</span>
-                <CopyButton value={data.payment_id} label="Payment ID" />
-              </span>
+              {data.reference && (
+                <>
+                  <span aria-hidden>•</span>
+                  <span className="inline-flex items-center gap-1.5">
+                    Payment ref: <span className="text-text-900">{data.reference}</span>
+                    <CopyButton value={data.reference} label="Payment ref" />
+                  </span>
+                </>
+              )}
             </p>
           )
         }
@@ -224,7 +236,7 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
                   rows={[
                     {
                       label: "Product image",
-                      value: (
+                      value: data.product.image_url ? (
                         <Image
                           src={data.product.image_url}
                           alt={data.product.title}
@@ -232,18 +244,23 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
                           height={72}
                           className="h-18 w-18 rounded-lg border border-stroke-soft object-cover"
                         />
+                      ) : (
+                        "—"
                       ),
                     },
-                    { label: "Color", value: data.product.color },
+                    { label: "Color", value: data.product.color ?? "—" },
                     {
                       label: "Size",
                       value: (
                         <div className="flex flex-col gap-3">
-                          <span>{data.product.size}</span>
-                          <div className="flex flex-col gap-1 rounded-lg bg-bg-soft px-3 py-2.5">
-                            {measurementLine("Top", data.product.measurements.top)}
-                            {measurementLine("Bottom", data.product.measurements.bottom)}
-                          </div>
+                          <span>{data.product.size ?? "—"}</span>
+                          {/* Only custom-fit orders carry measurements. */}
+                          {data.product.measurements && (
+                            <div className="flex flex-col gap-1 rounded-lg bg-bg-soft px-3 py-2.5">
+                              {measurementLine("Top", data.product.measurements.top)}
+                              {measurementLine("Bottom", data.product.measurements.bottom)}
+                            </div>
+                          )}
                         </div>
                       ),
                     },
@@ -257,22 +274,31 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
                 </h2>
                 <div className="overflow-hidden rounded-xl border border-stroke-soft">
                   <div className="flex flex-wrap items-center justify-between gap-3 bg-bg-soft px-5 py-3.5">
-                    <span className="inline-flex items-center gap-1.5 font-jost text-sm leading-5 text-text-500">
-                      Tracking ID:{" "}
-                      <span className="font-medium text-text-900">{data.shipping.tracking_id}</span>
-                      <CopyButton value={data.shipping.tracking_id} label="Tracking ID" />
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => toast.success("Tracking isn't wired up yet")}
-                      className="font-jost text-sm leading-5 text-text-900 underline"
-                    >
-                      View tracking
-                    </button>
+                    {data.shipping.tracking_id ? (
+                      <span className="inline-flex items-center gap-1.5 font-jost text-sm leading-5 text-text-500">
+                        Tracking ID:{" "}
+                        <span className="font-medium text-text-900">{data.shipping.tracking_id}</span>
+                        <CopyButton value={data.shipping.tracking_id} label="Tracking ID" />
+                      </span>
+                    ) : (
+                      <span className="font-jost text-sm leading-5 text-text-500">
+                        Not handed to a courier yet
+                      </span>
+                    )}
+                    {data.shipping.tracking_url && (
+                      <a
+                        href={data.shipping.tracking_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-jost text-sm leading-5 text-text-900 underline"
+                      >
+                        View tracking
+                      </a>
+                    )}
                   </div>
 
                   <ol className="flex flex-col gap-4 px-5 py-4">
-                    {[data.shipping.origin, data.shipping.destination].map((address, i) => (
+                    {shippingStops.map((address, i) => (
                       <li key={i} className="flex items-start gap-2.5">
                         <MapPin
                           className={
@@ -285,9 +311,11 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
                         <span className="font-jost text-sm leading-5 text-text-900">{address}</span>
                       </li>
                     ))}
-                    <li className="font-jost text-sm leading-5 text-text-900">
-                      {data.shipping.carrier}
-                    </li>
+                    {data.shipping.carrier && (
+                      <li className="font-jost text-sm leading-5 text-text-900">
+                        {data.shipping.carrier}
+                      </li>
+                    )}
                   </ol>
                 </div>
               </section>
@@ -300,11 +328,17 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
                   <PaymentRow
                     label="Subtotal total"
                     hint={`${formatCount(itemCount)} items`}
-                    value={formatNaira(subtotal)}
+                    value={formatNaira(data.subtotal)}
                   />
-                  <PaymentRow label="Payment method" value={data.payment_method} />
+                  <PaymentRow label="Payment method" value={data.payment_method ?? "—"} />
                   <PaymentRow label="Shipping fee" value={formatNaira(data.shipping_fee)} />
-                  <PaymentRow label="Total" value={formatNaira(subtotal + data.shipping_fee)} />
+                  {data.discount_amount > 0 && (
+                    <PaymentRow label="Discount" value={`−${formatNaira(data.discount_amount)}`} />
+                  )}
+                  {data.tax_amount > 0 && (
+                    <PaymentRow label="Tax" value={formatNaira(data.tax_amount)} />
+                  )}
+                  <PaymentRow label="Total" value={formatNaira(data.total)} />
                 </div>
               </section>
 

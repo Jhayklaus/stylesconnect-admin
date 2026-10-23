@@ -35,16 +35,20 @@ export function RecentOrdersCard({
         {orders?.map((order) => (
           <li key={order.id}>
             <Link
-              href="/orders/list"
+              href={`/orders/${order.id}`}
               className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-beige-lighter"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={order.image_url}
-                alt=""
-                aria-hidden
-                className="h-11 w-11 shrink-0 rounded-lg object-cover"
-              />
+              {order.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={order.image_url}
+                  alt=""
+                  aria-hidden
+                  className="h-11 w-11 shrink-0 rounded-lg object-cover"
+                />
+              ) : (
+                <span className="h-11 w-11 shrink-0 rounded-lg bg-beige-lighter" aria-hidden />
+              )}
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-jost text-sm leading-5 text-text-900">
                   Order {order.order_id}
