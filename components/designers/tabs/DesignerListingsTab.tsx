@@ -22,8 +22,7 @@ import type { Listing } from "@/services/listings";
 const STATUS_OPTIONS = [
   { value: "all", label: "Filter" },
   { value: "published", label: "Published" },
-  { value: "inactive", label: "Inactive" },
-  { value: "unlisted", label: "Unlisted" },
+  { value: "draft", label: "Draft" },
 ];
 
 const SORT_OPTIONS = [

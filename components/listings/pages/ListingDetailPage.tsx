@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AdminTopBar, DetailHeader, type Crumb } from "@/components/shell";
 import { InfoChip, ProfileInfoPanel } from "@/components/customers";
 import { ComingSoon, EmptyState, RatingSummary, Skeleton, StatusBadge, UnderlineTabs } from "@/components/ui";
+import { useToggleListingFeatured } from "@/hooks/listings/useListings";
 import { useListing } from "@/hooks/listings/useListingDetail";
 import { useListParams } from "@/hooks/useListParams";
 import { formatDateLong, formatTime } from "@/lib/format";
@@ -19,16 +20,21 @@ const TABS = [
   { value: "reviews", label: "Reviews" },
 ];
 
-const MANAGE_OPTIONS = [
-  { value: "unlist", label: "Unlist product" },
-  { value: "feature", label: "Feature on home" },
-  { value: "export", label: "Export details" },
-];
+function manageOptions(featured: boolean) {
+  return [
+    { value: "unlist", label: "Unlist product" },
+    { value: "feature", label: featured ? "Remove from home" : "Feature on home" },
+    { value: "export", label: "Export details" },
+  ];
+}
 
 export function ListingDetailPage({ listingId }: { listingId: string }) {
   const router = useRouter();
   const params = useListParams({ tab: "details" });
   const { data, isLoading, error } = useListing(listingId);
+  const toggleFeatured = useToggleListingFeatured();
+  const featured = data?.is_featured ?? false;
+  const options = manageOptions(featured);
 
   const crumbs: Crumb[] = [
     { label: "Listings", href: "/listings" },
@@ -69,6 +75,7 @@ export function ListingDetailPage({ listingId }: { listingId: string }) {
               {data?.title}
             </h1>
             {data && <StatusBadge status={data.status} domain="listing" />}
+            {featured && <StatusBadge status="featured" />}
           </div>
         }
         subtitle={
@@ -86,9 +93,13 @@ export function ListingDetailPage({ listingId }: { listingId: string }) {
         hasNext={Boolean(data?.next_id)}
         onPrev={() => data?.prev_id && router.push(`/listings/${data.prev_id}`)}
         onNext={() => data?.next_id && router.push(`/listings/${data.next_id}`)}
-        manageOptions={MANAGE_OPTIONS}
+        manageOptions={options}
         onManage={(value) => {
-          const option = MANAGE_OPTIONS.find((o) => o.value === value);
+          if (value === "feature") {
+            if (!toggleFeatured.isPending) toggleFeatured.mutate({ id: listingId, featured });
+            return;
+          }
+          const option = options.find((o) => o.value === value);
           toast.success(`${option?.label ?? value} isn't wired up yet`);
         }}
       />

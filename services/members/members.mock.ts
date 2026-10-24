@@ -10,6 +10,7 @@ export const MOCK_MEMBERS: Member[] = Array.from({ length: 14 }, (_, i) => {
     id: `MEM-${String(100 + i)}`,
     name,
     email: emailFor(name),
+    avatar_url: null,
     role: pick(MEMBER_ROLES, `member-role-${i}`),
     status,
     // Invited members haven't joined yet, so they have no tenure and no login.

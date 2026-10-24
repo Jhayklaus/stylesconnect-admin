@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -26,13 +33,29 @@ export interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+const noopSubscribe = () => () => {};
+
+/**
+ * False on the server and during hydration, true afterwards. The token lives in
+ * localStorage, which the server can't see — reading it during the hydration
+ * render would make the client's first tree differ from the server HTML.
+ */
+function useHydrated(): boolean {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false
+  );
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const queryClient = useQueryClient();
 
   // Skip the probe entirely when there's no token — an anonymous visitor
   // shouldn't pay for a request that can only 401.
-  const hasToken = typeof window !== "undefined" && Boolean(getAuthToken());
+  const hydrated = useHydrated();
+  const hasToken = hydrated && Boolean(getAuthToken());
 
   const session = useQuery<AdminUser, ApiError>({
     queryKey: authKeys.session(),
@@ -71,13 +94,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthContextValue>(
     () => ({
       user: session.data ?? null,
-      isLoading: hasToken && session.isPending,
+      // Until hydration we can't know whether there's a token, so report
+      // loading — reporting "signed out" would let RequireAuth redirect away.
+      isLoading: !hydrated || (hasToken && session.isPending),
       isAuthenticated: Boolean(session.data),
       login: (body) => loginMutation.mutateAsync(body),
       logout: () => logoutMutation.mutateAsync(),
       isLoggingIn: loginMutation.isPending,
     }),
-    [hasToken, session.data, session.isPending, loginMutation, logoutMutation]
+    [hydrated, hasToken, session.data, session.isPending, loginMutation, logoutMutation]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

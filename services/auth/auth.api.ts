@@ -5,7 +5,10 @@ import { delay } from "../mock/transport";
 import { MOCK_ADMIN, MOCK_LOCKED_EMAIL, MOCK_TOKEN } from "./auth.mock";
 import type { AdminUser, LoginBody, LoginResponse } from "./auth.types";
 
-/** POST /auth/login */
+/**
+ * POST /admin/auth/login — admin-only. Non-admins get the same 422 as bad
+ * credentials, so there's no separate "not an admin" state to handle.
+ */
 export async function login(body: LoginBody): Promise<LoginResponse> {
   if (MOCKS.auth) {
     await delay();
@@ -21,7 +24,7 @@ export async function login(body: LoginBody): Promise<LoginResponse> {
     return { token: MOCK_TOKEN, user: { ...MOCK_ADMIN, email: body.email.trim() } };
   }
 
-  const { data } = await apiClient.post<ApiEnvelope<LoginResponse>>("/auth/login", body);
+  const { data } = await apiClient.post<ApiEnvelope<LoginResponse>>("/admin/auth/login", body);
   setAuthToken(data.data.token);
   return data.data;
 }

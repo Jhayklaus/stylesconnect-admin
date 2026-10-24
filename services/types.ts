@@ -10,29 +10,20 @@ export interface ApiEnvelope<T> {
   error: unknown;
 }
 
-// Laravel-style pagination — visible on /designer/reviews and /listings/:id/reviews.
-// from: Designer > Fetch Designer Listings Reviews
-export interface PaginationLinks {
-  first: string | null;
-  last: string | null;
-  prev: string | null;
-  next: string | null;
-}
-
+// Paginated list shape returned by every /admin list endpoint:
+// { data: T[], meta: { current_page, per_page, total, last_page, from, to }, error }.
+// Unlike stock Laravel resources there is no `links` block.
 export interface PaginationMeta {
   current_page: number;
-  from: number | null;
-  last_page: number;
-  links: { url: string | null; label: string; active: boolean }[];
-  path: string;
   per_page: number;
-  to: number | null;
   total: number;
+  last_page: number;
+  from: number | null;
+  to: number | null;
 }
 
 export interface Paginated<T> {
   data: T[];
-  links: PaginationLinks;
   meta: PaginationMeta;
 }
 

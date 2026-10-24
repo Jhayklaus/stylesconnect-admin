@@ -30,7 +30,7 @@ const MANAGE_OPTIONS = [
   { value: "export", label: "Export profile" },
 ];
 
-function dateTime(iso: string | undefined): string {
+function dateTime(iso: string | null | undefined): string {
   return iso ? `${formatDateLong(iso)} ${formatTime(iso)}` : "—";
 }
 
@@ -80,7 +80,7 @@ export function ShopperProfilePage({ shopperId }: { shopperId: string }) {
               title: "Personal information",
               rows: [
                 { label: "Country", value: data?.country ?? "—" },
-                { label: "Joined", value: dateTime(data?.last_order_at) },
+                { label: "Joined", value: dateTime(data?.joined_at) },
                 { label: "Date of birth", value: dateTime(data?.date_of_birth) },
                 { label: "Gender", value: data?.gender ?? "—" },
               ],

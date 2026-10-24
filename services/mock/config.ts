@@ -1,10 +1,11 @@
 // Per-resource kill switch for the fixture layer.
 //
 // While a resource is mocked, its api functions resolve from `*.mock.ts`
-// instead of hitting the network. When a real endpoint ships, flip that one
-// flag to false, verify the payload matches the declared type, then delete
-// the fixture file. Nothing above the service layer changes.
-const ALL_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS !== "false";
+// instead of hitting the network. NEXT_PUBLIC_USE_MOCKS=true still puts the
+// whole app back on fixtures; resources with no backend endpoint yet stay
+// mocked regardless. When one ships, point its flag at ALL_MOCKS, verify the
+// payload matches the declared type, then delete the fixture file.
+const ALL_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS === "true";
 
 export const MOCKS = {
   auth: ALL_MOCKS,
@@ -15,7 +16,11 @@ export const MOCKS = {
   orders: ALL_MOCKS,
   payments: ALL_MOCKS,
   members: ALL_MOCKS,
-  returns: ALL_MOCKS,
-  refunds: ALL_MOCKS,
-  tickets: ALL_MOCKS,
+  attributes: ALL_MOCKS,
+  reviews: ALL_MOCKS,
+  users: ALL_MOCKS,
+  // No backend endpoints yet.
+  returns: true,
+  refunds: true,
+  tickets: true,
 } as const;

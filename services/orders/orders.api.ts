@@ -27,7 +27,7 @@ export async function fetchOrders(params: OrderListParams = {}): Promise<Paginat
       rows = rows.filter((o) => +new Date(o.ordered_at) >= cutoff);
     }
 
-    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7, "/admin/orders");
+    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7);
   }
 
   const { data } = await apiClient.get<Paginated<Order>>("/admin/orders", { params });

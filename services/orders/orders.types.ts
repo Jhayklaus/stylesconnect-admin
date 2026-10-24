@@ -7,24 +7,19 @@ export interface OrderCustomer {
   avatar_url: string | null;
 }
 
-export interface OrderItem {
-  id: string;
-  name: string;
-  image_url: string | null;
-  quantity: number;
-  unit_price: number;
-  total: number;
-}
-
 export interface Order {
   id: string;
+  /** Display form: "#178A4D41". */
   order_id: string;
   ordered_at: string;
   /** Promised delivery window, shown in the Due date/Timeline column. */
-  timeline: string;
+  timeline: string | null;
+  estimated_delivery_at: string | null;
   quantity: number;
-  /** Naira, whole units. */
+  /** Naira, delivery included. */
   total: number;
+  /** The order's lifecycle status — "pending", "confirmed", "cancelled", … */
+  status: string;
   payment_status: PaymentStatus;
   /** Absent when there's no secondary state to show. */
   fulfillment_status: FulfillmentStatus | null;
@@ -34,25 +29,31 @@ export interface Order {
 export interface OrderDetail extends Order {
   customer: OrderCustomer & {
     email: string;
-    phone: string;
-    address: string;
+    phone: string | null;
+    address: string | null;
   };
-  payment_method: string;
-  shipping_address: string;
+  /** Null when the gateway didn't report one. */
+  payment_method: string | null;
+  shipping_address: string | null;
   notes: string | null;
+  /** Every line on the order; `product` is the first. */
   items: OrderItem[];
-  /** Display form: "#ARTHYOE". */
-  reference: string;
+  /** The payment gateway's reference: "chk_eXLdQtOyJvjs4P88". */
+  reference: string | null;
   /** The store the order was placed with. */
   store: string;
-  /** Display form: "#RAD10010". */
-  payment_id: string;
-  estimated_delivery_at: string;
+  /** The payment's uuid — opens it on the Payments screen. */
+  payment_id: string | null;
   stage: OrderStage;
-  product: OrderProduct;
+  product: OrderItem;
   shipping: OrderShipping;
-  /** Naira, whole units. `total` on Order already covers the grand total. */
+  /** Naira. `total` on Order is the grand total. */
+  subtotal: number;
   shipping_fee: number;
+  discount_amount: number;
+  tax_amount: number;
+  cancel_reason: string | null;
+  can_cancel_and_refund: boolean;
   /**
    * Newest first, as the design stacks it. Named `events` because `timeline`
    * on Order is the promised delivery window ("2—3 weeks").
@@ -83,34 +84,48 @@ export const ORDER_STAGES: { value: OrderStage; label: string }[] = [
   { value: "delivered", label: "Delivered" },
 ];
 
-export interface OrderMeasurements {
-  chest: string;
-  waist: string;
-  length: string;
+/** One custom-fit number: { type: "chest", measurement: "70" }. Unitless as sent. */
+export interface OrderMeasurement {
+  /** Free-form body part — "chest", "waist", "shoulder", "length", … */
+  type: string;
+  measurement: string;
 }
 
-export interface OrderProduct {
+export interface OrderItem {
   id: string;
+  /** `title` and `name` carry the same value; the API sends both. */
   title: string;
-  image_url: string;
-  color: string;
-  size: string;
-  /** Custom-fit numbers, split by garment half. */
-  measurements: { top: OrderMeasurements; bottom: OrderMeasurements };
+  name: string;
+  listing_id: string;
+  image_url: string | null;
+  store: string;
+  color: string | null;
+  size: string | null;
+  /** Custom-fit numbers, in the order the shopper entered them. Null for standard sizes. */
+  measurements: OrderMeasurement[] | null;
+  quantity: number;
+  unit_price: number;
+  total: number;
 }
 
+/** Every field is null until the order is handed to a courier. */
 export interface OrderShipping {
-  tracking_id: string;
-  carrier: string;
-  origin: string;
-  destination: string;
+  tracking_id: string | null;
+  tracking_url: string | null;
+  carrier: string | null;
+  status: string | null;
+  origin: string | null;
+  destination: string | null;
 }
 
 export interface OrderTimelineEntry {
   id: string;
   title: string;
   description: string;
-  created_at: string;
+  /** The stage this entry marks: "confirmed", "delivered", … */
+  status: string;
+  /** Null for steps that haven't happened yet. */
+  created_at: string | null;
   /** "pending" renders the hollow spinner, "done" the green check. */
   state: "pending" | "done";
 }

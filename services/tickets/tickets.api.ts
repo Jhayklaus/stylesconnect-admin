@@ -41,7 +41,7 @@ export async function fetchTickets(
       subject: (a, b) => a.subject.localeCompare(b.subject),
     });
 
-    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7, "/admin/tickets");
+    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7);
   }
 
   const { data } = await apiClient.get<Paginated<Ticket>>("/admin/tickets", { params });

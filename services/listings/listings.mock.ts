@@ -15,12 +15,11 @@ const TITLES = [
   "Halter neck maxi dress", "Structured tote bag", "Herringbone waistcoat",
 ];
 
-const CATEGORIES = ["Shirts", "Jeans", "Dresses", "Outerwear", "Accessories", "Footwear"];
+const CATEGORIES = ["Tops", "Bottoms", "Full body"];
 
 export const MOCK_LISTINGS: Listing[] = TITLES.map((title, i) => {
   const roll = seeded(`listing-status-${title}`);
-  const status: Listing["status"] =
-    roll > 0.82 ? "unlisted" : roll > 0.62 ? "inactive" : "published";
+  const status: Listing["status"] = roll > 0.7 ? "draft" : "published";
 
   return {
     id: `LST-${String(3000 + i)}`,
@@ -32,7 +31,8 @@ export const MOCK_LISTINGS: Listing[] = TITLES.map((title, i) => {
     total_sold: intBetween(0, 240, `sold-${title}`),
     unit_price: intBetween(15, 250, `price-${title}`) * 1_000_000,
     status,
-    review_state: seeded(`review-${title}`) > 0.7 ? "awaiting_review" : "reviewed",
+    review_state: "reviewed",
+    is_featured: seeded(`featured-${title}`) > 0.8,
     created_at: daysAgo(intBetween(1, 500, `created-${title}`)),
   };
 });
@@ -72,6 +72,7 @@ export function mockListingDetail(id: string): ListingDetail | undefined {
     colors: pick(COLOR_SETS, `colors-${id}`),
     product_type: pick(PRODUCT_TYPES, `ptype-${id}`),
     audience: pick(AUDIENCES, `audience-${id}`),
+    sleeve_type: pick(["Short Sleeve", "Long Sleeve", null], `sleeve-${id}`),
     sizes: { adult: ADULT_SIZES, kids: KIDS_SIZES },
     timeline: pick(TIMELINES, `ltimeline-${id}`),
     stock_quantity: base.in_stock ? null : 0,

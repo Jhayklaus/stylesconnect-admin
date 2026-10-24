@@ -34,7 +34,7 @@ export async function fetchReturns(
       rows = rows.filter((r) => +new Date(r.requested_at) >= cutoff);
     }
 
-    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7, "/admin/orders/returns");
+    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7);
   }
 
   const { data } = await apiClient.get<Paginated<ReturnRequest>>("/admin/orders/returns", {

@@ -20,7 +20,7 @@ export async function fetchPayments(
     }
 
     rows = applySearch(rows, params.q, ["transaction_id"]);
-    rows = applyFilter(rows, params.method, (p) => p.method);
+    rows = applyFilter(rows, params.method, (p) => p.method ?? "");
 
     const days = params.period ? PERIOD_DAYS[params.period] : undefined;
     if (days) {
@@ -28,12 +28,7 @@ export async function fetchPayments(
       rows = rows.filter((p) => +new Date(p.paid_at) >= cutoff);
     }
 
-    return mockPaginate(
-      rows,
-      params.page ?? 1,
-      params.per_page ?? 7,
-      "/admin/transactions/payments"
-    );
+    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7);
   }
 
   const { data } = await apiClient.get<Paginated<Payment>>("/admin/transactions/payments", {

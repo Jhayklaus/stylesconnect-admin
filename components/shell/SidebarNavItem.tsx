@@ -17,8 +17,23 @@ const rowBase =
 const activeRow = "bg-bg-white text-primary-base shadow-pill-active font-medium";
 const idleRow = "text-text-500 hover:bg-bg-white/60 hover:text-text-900";
 
+function matches(href: string, pathname: string): boolean {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/**
+ * The child whose href is the longest match for the path. Plain prefix
+ * matching would light up both "All listings" (/listings) and "Attributes"
+ * (/listings/attributes) on the attributes screen.
+ */
+function activeChildHref(item: NavItem, pathname: string): string | undefined {
+  return item.children
+    ?.filter((c) => matches(c.href, pathname))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
+}
+
 export function isChildActive(item: NavItem, pathname: string): boolean {
-  return item.children?.some((c) => pathname.startsWith(c.href)) ?? false;
+  return activeChildHref(item, pathname) !== undefined;
 }
 
 export function SidebarNavItem({ item, pathname, open, onToggle }: SidebarNavItemProps) {
@@ -26,7 +41,7 @@ export function SidebarNavItem({ item, pathname, open, onToggle }: SidebarNavIte
 
   // Leaf item.
   if (!item.children) {
-    const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+    const active = matches(item.href!, pathname);
     return (
       <li>
         <Link
@@ -42,7 +57,8 @@ export function SidebarNavItem({ item, pathname, open, onToggle }: SidebarNavIte
   }
 
   // Parent item with a sub-nav.
-  const groupActive = isChildActive(item, pathname);
+  const activeHref = activeChildHref(item, pathname);
+  const groupActive = activeHref !== undefined;
 
   return (
     <li>
@@ -63,7 +79,7 @@ export function SidebarNavItem({ item, pathname, open, onToggle }: SidebarNavIte
       {open && (
         <ul className="ml-[27px] mt-1 space-y-1 border-l border-stroke-soft pl-3">
           {item.children.map((child) => {
-            const active = pathname === child.href || pathname.startsWith(`${child.href}/`);
+            const active = child.href === activeHref;
             return (
               <li key={child.href}>
                 <Link

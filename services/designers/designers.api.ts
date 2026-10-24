@@ -35,11 +35,10 @@ export async function fetchDesigners(
   if (MOCKS.designers) {
     await delay();
     let rows = MOCK_DESIGNERS;
-    rows = applySearch(rows, params.q, ["name", "email"]);
+    rows = applySearch(rows, params.q, ["name", "owner_name", "email"]);
     rows = applyFilter(rows, params.status, (d) => d.status);
-    rows = applyFilter(rows, params.subscription, (d) => d.subscription);
     rows = applySort(rows, params.sort, SORTS);
-    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7, "/admin/designers");
+    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7);
   }
 
   const { data } = await apiClient.get<Paginated<Designer>>("/admin/designers", { params });
@@ -82,7 +81,7 @@ export async function fetchDesignerListings(
     let rows = mockDesignerListings(id);
     rows = applySearch(rows, params.q, ["title"]);
     rows = applyFilter(rows, params.status, (l) => l.status);
-    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7, `/admin/designers/${id}/listings`);
+    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7);
   }
 
   const { data } = await apiClient.get<Paginated<Listing>>(`/admin/designers/${id}/listings`, {
@@ -99,15 +98,9 @@ export async function fetchDesignerTransactions(
   if (MOCKS.designers) {
     await delay();
     let rows = mockDesignerTransactions(id);
-    rows = applySearch(rows, params.q, ["reference", "payment_method"]);
-    rows = applyFilter(rows, params.type, (t) => t.type);
+    rows = applySearch(rows, params.q, ["reference"]);
     rows = applyFilter(rows, params.status, (t) => t.status);
-    return mockPaginate(
-      rows,
-      params.page ?? 1,
-      params.per_page ?? 7,
-      `/admin/designers/${id}/transactions`
-    );
+    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7);
   }
 
   const { data } = await apiClient.get<Paginated<DesignerTransaction>>(
@@ -129,12 +122,7 @@ export async function fetchDesignerReviews(
     if (params.rating && params.rating !== "all") {
       rows = rows.filter((r) => r.rating === Number(params.rating));
     }
-    return mockPaginate(
-      rows,
-      params.page ?? 1,
-      params.per_page ?? 5,
-      `/admin/designers/${id}/reviews`
-    );
+    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 5);
   }
 
   const { data } = await apiClient.get<Paginated<DesignerReviewItem>>(

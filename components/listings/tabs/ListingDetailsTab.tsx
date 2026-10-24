@@ -82,8 +82,10 @@ export function ListingDetailsTab({
               </div>
             ),
           },
-          { label: "Category", value: detail.audience },
+          { label: "Category", value: detail.category },
           { label: "Type", value: detail.product_type },
+          { label: "Audience", value: detail.audience },
+          ...(detail.sleeve_type ? [{ label: "Sleeve", value: detail.sleeve_type }] : []),
           {
             label: "Sizes",
             value: (

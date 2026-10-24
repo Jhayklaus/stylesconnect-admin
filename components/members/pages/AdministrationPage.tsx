@@ -15,7 +15,12 @@ import {
 } from "@/components/ui";
 import { useMembers, useRemoveMember, useResendInvite } from "@/hooks/members/useMembers";
 import { useListParams } from "@/hooks/useListParams";
-import { MEMBER_ROLES, type Member, type MemberListParams } from "@/services/members";
+import {
+  TEAM_ENDPOINTS_LIVE,
+  MEMBER_ROLES,
+  type Member,
+  type MemberListParams,
+} from "@/services/members";
 import { memberColumns, type MemberAction } from "../memberColumns";
 import { ChangeRoleModal } from "../ChangeRoleModal";
 import { InviteMemberModal } from "../InviteMemberModal";
@@ -75,7 +80,11 @@ export function AdministrationPage() {
       <div className="flex flex-col gap-6 px-8 py-6">
         <Toolbar
           left={<SegmentedTabs tabs={TABS} value={params.tab} onChange={params.setTab} />}
-          right={<Button onClick={() => setInviteOpen(true)}>Invite Member</Button>}
+          right={
+            TEAM_ENDPOINTS_LIVE && (
+              <Button onClick={() => setInviteOpen(true)}>Invite Member</Button>
+            )
+          }
         />
 
         {onActivityTab ? (
@@ -85,27 +94,30 @@ export function AdministrationPage() {
           />
         ) : (
           <>
-            <Toolbar
-              left={
-                <SearchInput value={params.q} onChange={params.setQuery} className="w-[330px]" />
-              }
-              right={
-                <>
-                  <FilterDropdown
-                    label="Status"
-                    options={STATUS_OPTIONS}
-                    value={params.filters.status}
-                    onChange={(v) => params.setFilter("status", v)}
-                  />
-                  <FilterDropdown
-                    label="Roles"
-                    options={ROLE_OPTIONS}
-                    value={params.filters.role}
-                    onChange={(v) => params.setFilter("role", v)}
-                  />
-                </>
-              }
-            />
+            {/* Hidden until the backend honours search and filters. */}
+            {TEAM_ENDPOINTS_LIVE && (
+              <Toolbar
+                left={
+                  <SearchInput value={params.q} onChange={params.setQuery} className="w-[330px]" />
+                }
+                right={
+                  <>
+                    <FilterDropdown
+                      label="Status"
+                      options={STATUS_OPTIONS}
+                      value={params.filters.status}
+                      onChange={(v) => params.setFilter("status", v)}
+                    />
+                    <FilterDropdown
+                      label="Roles"
+                      options={ROLE_OPTIONS}
+                      value={params.filters.role}
+                      onChange={(v) => params.setFilter("role", v)}
+                    />
+                  </>
+                }
+              />
+            )}
 
             <DataTable
               columns={memberColumns(onAction)}

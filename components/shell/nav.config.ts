@@ -1,6 +1,7 @@
 import {
   ArrowLeftRight,
   LayoutGrid,
+  MessageSquareText,
   Package,
   Settings,
   ShoppingBag,
@@ -44,6 +45,8 @@ export const MAIN_MENU: NavItem[] = [
     children: [
       { label: "Designers", href: "/customers/designers" },
       { label: "Shoppers", href: "/customers/shoppers" },
+      { label: "All users", href: "/customers/users" },
+      { label: "Waitlist", href: "/customers/waitlist" },
       { label: "Verification", href: "/customers/verification" },
     ],
   },
@@ -56,7 +59,24 @@ export const MAIN_MENU: NavItem[] = [
       { label: "Returns", href: "/orders/returns" },
     ],
   },
-  { key: "listings", label: "Listings", icon: Package, href: "/listings" },
+  {
+    key: "listings",
+    label: "Listings",
+    icon: Package,
+    children: [
+      { label: "All listings", href: "/listings" },
+      { label: "Attributes", href: "/listings/attributes" },
+    ],
+  },
+  {
+    key: "reviews",
+    label: "Reviews",
+    icon: MessageSquareText,
+    children: [
+      { label: "Product reviews", href: "/reviews/products" },
+      { label: "Store reviews", href: "/reviews/stores" },
+    ],
+  },
   {
     key: "transactions",
     label: "Transaction",

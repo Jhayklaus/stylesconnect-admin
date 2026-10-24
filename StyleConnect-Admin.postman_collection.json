@@ -1,0 +1,2400 @@
+{
+  "info": {
+    "_postman_id": "48679f43-c3c0-49ce-8030-24fc5116b12f",
+    "name": "StyleConnect Admin",
+    "description": "Admin API for the StyleConnect dashboard. Run Auth → Admin login first; it stores {{admin_token}}. List requests store the first row's id, so detail requests work straight after.\n\nTo merge into the main collection, drag the 'Admin' folder across — auth is set on that folder, so it keeps using {{admin_token}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Admin",
+      "description": "Bearer {{admin_token}} for everything inside (except Admin login).",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{admin_token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "Auth",
+          "description": "",
+          "item": [
+            {
+              "name": "Admin login",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/admin/auth/login",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "Admins only. Non-admins get the same 422 as bad credentials. Saves the token to {{admin_token}}.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const token = pm.response.json()?.data?.token;",
+                      "if (token) pm.collectionVariables.set('admin_token', token);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Me",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/auth/me",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "me"
+                  ]
+                },
+                "description": "Shared session endpoint."
+              }
+            },
+            {
+              "name": "Logout",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/auth/logout",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "logout"
+                  ]
+                },
+                "description": "Revokes the current (dashboard) token only."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dashboard",
+          "description": "",
+          "item": [
+            {
+              "name": "Overview",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/admin/overview?range=last_year",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "overview"
+                  ],
+                  "query": [
+                    {
+                      "key": "range",
+                      "value": "last_year",
+                      "description": "last_year | last_6_months | last_30_days"
+                    }
+                  ]
+                },
+                "description": ""
+              }
+            },
+            {
+              "name": "Designers",
+              "description": "{{designer_id}} is the designer profile uuid; 'List designers' fills it in.",
+              "item": [
+                {
+                  "name": "List designers",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/designers?page=1&per_page=7&sort=recent",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "designers"
+                      ],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1",
+                          "description": "Page number"
+                        },
+                        {
+                          "key": "per_page",
+                          "value": "7",
+                          "description": "Rows per page (max 100)"
+                        },
+                        {
+                          "key": "q",
+                          "value": "",
+                          "description": "Business name, owner name or email",
+                          "disabled": true
+                        },
+                        {
+                          "key": "status",
+                          "value": "",
+                          "description": "active | inactive | deactivated",
+                          "disabled": true
+                        },
+                        {
+                          "key": "subscription",
+                          "value": "",
+                          "description": "Always empty for 'active' — commission-based",
+                          "disabled": true
+                        },
+                        {
+                          "key": "sort",
+                          "value": "recent",
+                          "description": "recent | name_asc | name_desc | sales_desc"
+                        }
+                      ]
+                    },
+                    "description": ""
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const rows = pm.response.json().data || [];",
+                          "if (rows.length) pm.collectionVariables.set('designer_id', rows[0].id);"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Designer stats",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/designers/stats",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "designers",
+                        "stats"
+                      ]
+                    },
+                    "description": ""
+                  }
+                },
+                {
+                  "name": "Show designer",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/designers/{{designer_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "designers",
+                        "{{designer_id}}"
+                      ]
+                    },
+                    "description": ""
+                  }
+                },
+                {
+                  "name": "Designer listings",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/designers/{{designer_id}}/listings?page=1&per_page=7",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "designers",
+                        "{{designer_id}}",
+                        "listings"
+                      ],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1",
+                          "description": "Page number"
+                        },
+                        {
+                          "key": "per_page",
+                          "value": "7",
+                          "description": "Rows per page (max 100)"
+                        },
+                        {
+                          "key": "q",
+                          "value": "",
+                          "description": "Title / category / product id",
+                          "disabled": true
+                        },
+                        {
+                          "key": "status",
+                          "value": "",
+                          "description": "published | draft",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": ""
+                  }
+                },
+                {
+                  "name": "Designer transactions",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/designers/{{designer_id}}/transactions?page=1&per_page=7",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "designers",
+                        "{{designer_id}}",
+                        "transactions"
+                      ],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1",
+                          "description": "Page number"
+                        },
+                        {
+                          "key": "per_page",
+                          "value": "7",
+                          "description": "Rows per page (max 100)"
+                        },
+                        {
+                          "key": "q",
+                          "value": "",
+                          "description": "Payment reference",
+                          "disabled": true
+                        },
+                        {
+                          "key": "type",
+                          "value": "",
+                          "description": "order",
+                          "disabled": true
+                        },
+                        {
+                          "key": "status",
+                          "value": "",
+                          "description": "paid | pending | failed",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": ""
+                  }
+                },
+                {
+                  "name": "Designer reviews",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/designers/{{designer_id}}/reviews?page=1&per_page=7",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "designers",
+                        "{{designer_id}}",
+                        "reviews"
+                      ],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1",
+                          "description": "Page number"
+                        },
+                        {
+                          "key": "per_page",
+                          "value": "7",
+                          "description": "Rows per page (max 100)"
+                        },
+                        {
+                          "key": "q",
+                          "value": "",
+                          "description": "Review text",
+                          "disabled": true
+                        },
+                        {
+                          "key": "rating",
+                          "value": "",
+                          "description": "1-5",
+                          "disabled": true
+                        },
+                        {
+                          "key": "status",
+                          "value": "",
+                          "description": "pending | approved | rejected",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": ""
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Shoppers",
+              "description": "{{shopper_id}} is the user uuid; 'List shoppers' fills it in.",
+              "item": [
+                {
+                  "name": "List shoppers",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/shoppers?page=1&per_page=7&sort=recent",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "shoppers"
+                      ],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1",
+                          "description": "Page number"
+                        },
+                        {
+                          "key": "per_page",
+                          "value": "7",
+                          "description": "Rows per page (max 100)"
+                        },
+                        {
+                          "key": "q",
+                          "value": "",
+                          "description": "Name or email",
+                          "disabled": true
+                        },
+                        {
+                          "key": "status",
+                          "value": "",
+                          "description": "active | inactive | deactivated",
+                          "disabled": true
+                        },
+                        {
+                          "key": "segment",
+                          "value": "",
+                          "description": "returning | new",
+                          "disabled": true
+                        },
+                        {
+                          "key": "spend",
+                          "value": "",
+                          "description": "under_50m | 50m_150m | over_150m",
+                          "disabled": true
+                        },
+                        {
+                          "key": "sort",
+                          "value": "recent",
+                          "description": "recent | name_asc | name_desc | spend_desc"
+                        }
+                      ]
+                    },
+                    "description": ""
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const rows = pm.response.json().data || [];",
+                          "if (rows.length) pm.collectionVariables.set('shopper_id', rows[0].id);"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Shopper stats",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/shoppers/stats",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "shoppers",
+                        "stats"
+                      ]
+                    },
+                    "description": ""
+                  }
+                },
+                {
+                  "name": "Show shopper",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/shoppers/{{shopper_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "shoppers",
+                        "{{shopper_id}}"
+                      ]
+                    },
+                    "description": ""
+                  }
+                },
+                {
+                  "name": "Shopper orders",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/shoppers/{{shopper_id}}/orders?page=1&per_page=7",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "shoppers",
+                        "{{shopper_id}}",
+                        "orders"
+                      ],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1",
+                          "description": "Page number"
+                        },
+                        {
+                          "key": "per_page",
+                          "value": "7",
+                          "description": "Rows per page (max 100)"
+                        },
+                        {
+                          "key": "q",
+                          "value": "",
+                          "description": "Order reference",
+                          "disabled": true
+                        },
+                        {
+                          "key": "status",
+                          "value": "",
+                          "description": "paid | pending | failed | cancelled",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": ""
+                  }
+                },
+                {
+                  "name": "Shopper activity",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/shoppers/{{shopper_id}}/activity",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "shoppers",
+                        "{{shopper_id}}",
+                        "activity"
+                      ]
+                    },
+                    "description": "Latest 50 events, newest first."
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Listings",
+              "description": "",
+              "item": [
+                {
+                  "name": "List listings",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/listings?page=1&per_page=7&sort=recent",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "listings"
+                      ],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1",
+                          "description": "Page number"
+                        },
+                        {
+                          "key": "per_page",
+                          "value": "7",
+                          "description": "Rows per page (max 100)"
+                        },
+                        {
+                          "key": "q",
+                          "value": "",
+                          "description": "Title / category / product id",
+                          "disabled": true
+                        },
+                        {
+                          "key": "status",
+                          "value": "",
+                          "description": "published | draft",
+                          "disabled": true
+                        },
+                        {
+                          "key": "category",
+                          "value": "",
+                          "description": "Category slug or name",
+                          "disabled": true
+                        },
+                        {
+                          "key": "review_state",
+                          "value": "",
+                          "description": "reviewed | awaiting_review (always empty — no listing approval)",
+                          "disabled": true
+                        },
+                        {
+                          "key": "sort",
+                          "value": "recent",
+                          "description": "recent | price_desc | sold_desc"
+                        }
+                      ]
+                    },
+                    "description": ""
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const rows = pm.response.json().data || [];",
+                          "if (rows.length) pm.collectionVariables.set('listing_id', rows[0].id);"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Show listing",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/listings/{{listing_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "listings",
+                        "{{listing_id}}"
+                      ]
+                    },
+                    "description": ""
+                  }
+                },
+                {
+                  "name": "Listing orders",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/listings/{{listing_id}}/orders?page=1&per_page=7",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "listings",
+                        "{{listing_id}}",
+                        "orders"
+                      ],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1",
+                          "description": "Page number"
+                        },
+                        {
+                          "key": "per_page",
+                          "value": "7",
+                          "description": "Rows per page (max 100)"
+                        },
+                        {
+                          "key": "q",
+                          "value": "",
+                          "description": "Order reference",
+                          "disabled": true
+                        },
+                        {
+                          "key": "status",
+                          "value": "",
+                          "description": "paid | pending | failed | cancelled",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": ""
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Orders",
+              "description": "",
+              "item": [
+                {
+                  "name": "List orders",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/orders?page=1&per_page=7",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "orders"
+                      ],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1",
+                          "description": "Page number"
+                        },
+                        {
+                          "key": "per_page",
+                          "value": "7",
+                          "description": "Rows per page (max 100)"
+                        },
+                        {
+                          "key": "q",
+                          "value": "",
+                          "description": "Order reference, e.g. #1A2B3C4D",
+                          "disabled": true
+                        },
+                        {
+                          "key": "view",
+                          "value": "",
+                          "description": "all | paid | unfulfilled",
+                          "disabled": true
+                        },
+                        {
+                          "key": "period",
+                          "value": "",
+                          "description": "7d | 30d | 90d",
+                          "disabled": true
+                        },
+                        {
+                          "key": "fulfillment",
+                          "value": "",
+                          "description": "fulfilled | unfulfilled | refunded",
+                          "disabled": true
+                        },
+                        {
+                          "key": "payment_status",
+                          "value": "",
+                          "description": "paid | pending | failed | cancelled",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": ""
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const rows = pm.response.json().data || [];",
+                          "if (rows.length) pm.collectionVariables.set('order_id', rows[0].id);"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Show order",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/orders/{{order_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "orders",
+                        "{{order_id}}"
+                      ]
+                    },
+                    "description": ""
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Transactions",
+              "description": "Successful payments only.",
+              "item": [
+                {
+                  "name": "List payments",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/transactions/payments?page=1&per_page=7",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "transactions",
+                        "payments"
+                      ],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1",
+                          "description": "Page number"
+                        },
+                        {
+                          "key": "per_page",
+                          "value": "7",
+                          "description": "Rows per page (max 100)"
+                        },
+                        {
+                          "key": "q",
+                          "value": "",
+                          "description": "Payment reference",
+                          "disabled": true
+                        },
+                        {
+                          "key": "view",
+                          "value": "",
+                          "description": "all | order | subscription",
+                          "disabled": true
+                        },
+                        {
+                          "key": "method",
+                          "value": "",
+                          "description": "debit_card | bank_transfer",
+                          "disabled": true
+                        },
+                        {
+                          "key": "period",
+                          "value": "",
+                          "description": "7d | 30d | 90d",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": ""
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                          "const rows = pm.response.json().data || [];",
+                          "if (rows.length) pm.collectionVariables.set('payment_id', rows[0].id);"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Show payment",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/transactions/payments/{{payment_id}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "transactions",
+                        "payments",
+                        "{{payment_id}}"
+                      ]
+                    },
+                    "description": ""
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Back office",
+          "description": "",
+          "item": [
+            {
+              "name": "Review moderation",
+              "description": "",
+              "item": [
+                {
+                  "name": "List product reviews",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/reviews?page=1&per_page=7&status=pending",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "reviews"
+                      ],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1",
+                          "description": "Page number"
+                        },
+                        {
+                          "key": "per_page",
+                          "value": "7",
+                          "description": "Rows per page (max 100)"
+                        },
+                        {
+                          "key": "status",
+                          "value": "pending",
+                          "description": "pending | approved | rejected"
+                        }
+                      ]
+                    },
+                    "description": ""
+                  }
+                },
+                {
+                  "name": "Set product review status",
+                  "request": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/reviews/1/status",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "reviews",
+                        "1",
+                        "status"
+                      ]
+                    },
+                    "description": "Numeric review id. pending | approved | rejected.",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"status\": \"approved\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "List store reviews",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/store-reviews?page=1&per_page=7&status=pending",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "store-reviews"
+                      ],
+                      "query": [
+                        {
+                          "key": "page",
+                          "value": "1",
+                          "description": "Page number"
+                        },
+                        {
+                          "key": "per_page",
+                          "value": "7",
+                          "description": "Rows per page (max 100)"
+                        },
+                        {
+                          "key": "status",
+                          "value": "pending",
+                          "description": "pending | approved | rejected"
+                        }
+                      ]
+                    },
+                    "description": ""
+                  }
+                },
+                {
+                  "name": "Set store review status",
+                  "request": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{base_url}}/admin/store-reviews/1/status",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "store-reviews",
+                        "1",
+                        "status"
+                      ]
+                    },
+                    "description": "Numeric store review id.",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"status\": \"approved\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Toggle featured listing",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/admin/listings/{{listing_id}}/feature",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "listings",
+                    "{{listing_id}}",
+                    "feature"
+                  ]
+                },
+                "description": ""
+              }
+            },
+            {
+              "name": "Listing attributes",
+              "description": "",
+              "item": [
+                {
+                  "name": "Categories",
+                  "description": "Numeric ids. Public read-only lists stay at GET /v1/categories.",
+                  "item": [
+                    {
+                      "name": "List categories",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/categories",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "categories"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    },
+                    {
+                      "name": "Create categories",
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/categories",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "categories"
+                          ]
+                        },
+                        "description": "",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"Outerwear\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "Update categories",
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/categories/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "categories",
+                            "1"
+                          ]
+                        },
+                        "description": "",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"Outerwear\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "Delete categories",
+                      "request": {
+                        "method": "DELETE",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/categories/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "categories",
+                            "1"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Types",
+                  "description": "Numeric ids. Public read-only lists stay at GET /v1/types.",
+                  "item": [
+                    {
+                      "name": "List types",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/types?",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "types"
+                          ],
+                          "query": [
+                            {
+                              "key": "category",
+                              "value": "",
+                              "description": "Category slug filter",
+                              "disabled": true
+                            }
+                          ]
+                        },
+                        "description": ""
+                      }
+                    },
+                    {
+                      "name": "Create types",
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/types",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "types"
+                          ]
+                        },
+                        "description": "",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"Bomber jacket\",\n  \"category_id\": 1\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "Show types",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/types/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "types",
+                            "1"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    },
+                    {
+                      "name": "Update types",
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/types/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "types",
+                            "1"
+                          ]
+                        },
+                        "description": "",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"Bomber jacket\",\n  \"category_id\": 1\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "Delete types",
+                      "request": {
+                        "method": "DELETE",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/types/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "types",
+                            "1"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Audiences",
+                  "description": "Numeric ids. Public read-only lists stay at GET /v1/audiences.",
+                  "item": [
+                    {
+                      "name": "List audiences",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/audiences",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "audiences"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    },
+                    {
+                      "name": "Create audiences",
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/audiences",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "audiences"
+                          ]
+                        },
+                        "description": "",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"Unisex\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "Show audiences",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/audiences/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "audiences",
+                            "1"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    },
+                    {
+                      "name": "Update audiences",
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/audiences/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "audiences",
+                            "1"
+                          ]
+                        },
+                        "description": "",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"Unisex\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "Delete audiences",
+                      "request": {
+                        "method": "DELETE",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/audiences/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "audiences",
+                            "1"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Colors",
+                  "description": "Numeric ids. Public read-only lists stay at GET /v1/colors.",
+                  "item": [
+                    {
+                      "name": "List colors",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/colors",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "colors"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    },
+                    {
+                      "name": "Create colors",
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/colors",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "colors"
+                          ]
+                        },
+                        "description": "",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"Rust\",\n  \"hex_code\": \"#B7410E\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "Show colors",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/colors/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "colors",
+                            "1"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    },
+                    {
+                      "name": "Update colors",
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/colors/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "colors",
+                            "1"
+                          ]
+                        },
+                        "description": "",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"Rust\",\n  \"hex_code\": \"#B7410E\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "Delete colors",
+                      "request": {
+                        "method": "DELETE",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/colors/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "colors",
+                            "1"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Sizes",
+                  "description": "Numeric ids. Public read-only lists stay at GET /v1/sizes.",
+                  "item": [
+                    {
+                      "name": "List sizes",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/sizes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "sizes"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    },
+                    {
+                      "name": "Create sizes",
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/sizes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "sizes"
+                          ]
+                        },
+                        "description": "",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"XLarge\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "Show sizes",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/sizes/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "sizes",
+                            "1"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    },
+                    {
+                      "name": "Update sizes",
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/sizes/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "sizes",
+                            "1"
+                          ]
+                        },
+                        "description": "",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"XLarge\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "Delete sizes",
+                      "request": {
+                        "method": "DELETE",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/sizes/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "sizes",
+                            "1"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Sleeve types",
+                  "description": "Numeric ids. Public read-only lists stay at GET /v1/sleeve-types.",
+                  "item": [
+                    {
+                      "name": "List sleeve types",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/sleeve-types",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "sleeve-types"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    },
+                    {
+                      "name": "Create sleeve types",
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/sleeve-types",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "sleeve-types"
+                          ]
+                        },
+                        "description": "",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"Puff sleeve\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "Show sleeve types",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/sleeve-types/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "sleeve-types",
+                            "1"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    },
+                    {
+                      "name": "Update sleeve types",
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/sleeve-types/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "sleeve-types",
+                            "1"
+                          ]
+                        },
+                        "description": "",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"Puff sleeve\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "Delete sleeve types",
+                      "request": {
+                        "method": "DELETE",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/sleeve-types/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "sleeve-types",
+                            "1"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Production timelines",
+                  "description": "Numeric ids. Public read-only lists stay at GET /v1/production-timelines.",
+                  "item": [
+                    {
+                      "name": "List production timelines",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/production-timelines",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "production-timelines"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    },
+                    {
+                      "name": "Create production timelines",
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/production-timelines",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "production-timelines"
+                          ]
+                        },
+                        "description": "",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"1-2 weeks\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "Show production timelines",
+                      "request": {
+                        "method": "GET",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/production-timelines/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "production-timelines",
+                            "1"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    },
+                    {
+                      "name": "Update production timelines",
+                      "request": {
+                        "method": "PUT",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/production-timelines/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "production-timelines",
+                            "1"
+                          ]
+                        },
+                        "description": "",
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n  \"name\": \"1-2 weeks\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "Delete production timelines",
+                      "request": {
+                        "method": "DELETE",
+                        "header": [
+                          {
+                            "key": "Accept",
+                            "value": "application/json"
+                          }
+                        ],
+                        "url": {
+                          "raw": "{{base_url}}/admin/production-timelines/1",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "admin",
+                            "production-timelines",
+                            "1"
+                          ]
+                        },
+                        "description": ""
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "List admins",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/admin/admins?page=1&per_page=7",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "admins"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "description": "Page number"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "7",
+                      "description": "Rows per page (max 100)"
+                    }
+                  ]
+                },
+                "description": ""
+              }
+            },
+            {
+              "name": "List users",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/admin/users?page=1&per_page=7",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "description": "Page number"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "7",
+                      "description": "Rows per page (max 100)"
+                    }
+                  ]
+                },
+                "description": ""
+              }
+            },
+            {
+              "name": "List waitlist",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/admin/waitlist?page=1&per_page=7",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "waitlist"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "description": "Page number"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "7",
+                      "description": "Rows per page (max 100)"
+                    },
+                    {
+                      "key": "type",
+                      "value": "",
+                      "description": "Waitlist entry type",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": ""
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost/api/v1"
+    },
+    {
+      "key": "admin_email",
+      "value": "admin@styleconnect.com"
+    },
+    {
+      "key": "admin_password",
+      "value": ""
+    },
+    {
+      "key": "admin_token",
+      "value": ""
+    },
+    {
+      "key": "designer_id",
+      "value": ""
+    },
+    {
+      "key": "shopper_id",
+      "value": ""
+    },
+    {
+      "key": "listing_id",
+      "value": ""
+    },
+    {
+      "key": "order_id",
+      "value": ""
+    },
+    {
+      "key": "payment_id",
+      "value": ""
+    }
+  ]
+}

@@ -10,6 +10,7 @@ import {
   SearchInput,
   SegmentedTabs,
   StatCardRow,
+  statDelta,
   TableFooter,
   Toolbar,
 } from "@/components/ui";
@@ -70,10 +71,10 @@ export function ShoppersPage() {
         <StatCardRow
           isLoading={statsLoading}
           items={[
-            { label: "Total Shoppers", value: stats?.total, delta: { direction: "up", value: stats?.total_delta ?? 0, variant: "pill" } },
-            { label: "Total Active", value: stats?.active, delta: { direction: "up", value: stats?.active_delta ?? 0, variant: "pill" } },
-            { label: "Total inactive", value: stats?.inactive, delta: { direction: "up", value: stats?.inactive_delta ?? 0, variant: "pill" } },
-            { label: "Deactivated", value: stats?.deactivated, delta: { direction: "up", value: stats?.deactivated_delta ?? 0, variant: "pill" } },
+            { label: "Total Shoppers", value: stats?.total, delta: statDelta(stats?.total_delta, "pill") },
+            { label: "Total Active", value: stats?.active, delta: statDelta(stats?.active_delta, "pill") },
+            { label: "Total inactive", value: stats?.inactive, delta: statDelta(stats?.inactive_delta, "pill") },
+            { label: "Deactivated", value: stats?.deactivated, delta: statDelta(stats?.deactivated_delta, "pill") },
           ]}
         />
 

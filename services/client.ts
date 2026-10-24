@@ -27,7 +27,22 @@ export const apiClient = axios.create({
   },
 });
 
+/**
+ * Screens pass list state straight through, and "all" / "" mean "no filter"
+ * there. Drop them so the backend only ever sees filters that narrow.
+ */
+function cleanParams(params: unknown): unknown {
+  if (!params || typeof params !== "object" || params instanceof URLSearchParams) return params;
+  return Object.fromEntries(
+    Object.entries(params).filter(
+      ([, value]) => value !== undefined && value !== null && value !== "" && value !== "all"
+    )
+  );
+}
+
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  config.params = cleanParams(config.params);
+
   const token = getAuthToken();
   if (token) {
     const headers =

@@ -23,7 +23,7 @@ const SORTS: Record<string, (a: Shopper, b: Shopper) => number> = {
   name_asc: (a, b) => a.name.localeCompare(b.name),
   name_desc: (a, b) => b.name.localeCompare(a.name),
   spend_desc: (a, b) => b.total_spend - a.total_spend,
-  recent: (a, b) => +new Date(b.last_order_at) - +new Date(a.last_order_at),
+  recent: (a, b) => +new Date(b.last_order_at ?? 0) - +new Date(a.last_order_at ?? 0),
 };
 
 /** GET /admin/shoppers */
@@ -43,7 +43,7 @@ export async function fetchShoppers(
       rows = rows.filter((s) => s.total_spend >= 50_000_000 && s.total_spend <= 150_000_000);
     if (params.spend === "over_150m") rows = rows.filter((s) => s.total_spend > 150_000_000);
     rows = applySort(rows, params.sort, SORTS);
-    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7, "/admin/shoppers");
+    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7);
   }
 
   const { data } = await apiClient.get<Paginated<Shopper>>("/admin/shoppers", { params });
@@ -86,7 +86,7 @@ export async function fetchShopperOrders(
     let rows = mockShopperOrders(id);
     rows = applySearch(rows, params.q, ["order_id"]);
     rows = applyFilter(rows, params.status, (o) => o.payment_status);
-    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7, `/admin/shoppers/${id}/orders`);
+    return mockPaginate(rows, params.page ?? 1, params.per_page ?? 7);
   }
 
   const { data } = await apiClient.get<Paginated<Order>>(`/admin/shoppers/${id}/orders`, {

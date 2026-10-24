@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ListFilter } from "lucide-react";
 import { AdminTopBar } from "@/components/shell";
 import {
   DataTable,
@@ -10,6 +9,7 @@ import {
   SearchInput,
   SegmentedTabs,
   StatCardRow,
+  statDelta,
   TableFooter,
   Toolbar,
 } from "@/components/ui";
@@ -32,22 +32,15 @@ const SORT_OPTIONS = [
   { value: "sales_desc", label: "Highest sales" },
 ];
 
-const SUBSCRIPTION_OPTIONS = [
-  { value: "all", label: "All subscriptions" },
-  { value: "active", label: "Active" },
-  { value: "inactive", label: "Inactive" },
-];
-
 export function DesignersPage() {
   const router = useRouter();
-  const params = useListParams({ filterKeys: ["subscription", "sort"] });
+  const params = useListParams({ filterKeys: ["sort"] });
 
   const query: DesignerListParams = {
     page: params.page,
     per_page: params.perPage,
     q: params.q || undefined,
     status: params.tab === "all" ? "all" : (params.tab as DesignerStatus),
-    subscription: params.filters.subscription as DesignerListParams["subscription"],
     sort: params.filters.sort === "all" ? undefined : (params.filters.sort as DesignerListParams["sort"]),
   };
 
@@ -62,10 +55,10 @@ export function DesignersPage() {
         <StatCardRow
           isLoading={statsLoading}
           items={[
-            { label: "Total designers", value: stats?.total, delta: { direction: "up", value: stats?.total_delta ?? 0, variant: "pill" } },
-            { label: "Total Active", value: stats?.active, delta: { direction: "up", value: stats?.active_delta ?? 0, variant: "pill" } },
-            { label: "Total inactive", value: stats?.inactive, delta: { direction: "up", value: stats?.inactive_delta ?? 0, variant: "pill" } },
-            { label: "Deactivated", value: stats?.deactivated, delta: { direction: "up", value: stats?.deactivated_delta ?? 0, variant: "pill" } },
+            { label: "Total designers", value: stats?.total, delta: statDelta(stats?.total_delta, "pill") },
+            { label: "Total Active", value: stats?.active, delta: statDelta(stats?.active_delta, "pill") },
+            { label: "Total inactive", value: stats?.inactive, delta: statDelta(stats?.inactive_delta, "pill") },
+            { label: "Deactivated", value: stats?.deactivated, delta: statDelta(stats?.deactivated_delta, "pill") },
           ]}
         />
 
@@ -74,13 +67,6 @@ export function DesignersPage() {
           right={
             <>
               <SearchInput value={params.q} onChange={params.setQuery} className="w-[280px]" />
-              <FilterDropdown
-                label="Filter"
-                icon={<ListFilter className="h-4 w-4" aria-hidden />}
-                options={SUBSCRIPTION_OPTIONS}
-                value={params.filters.subscription}
-                onChange={(v) => params.setFilter("subscription", v)}
-              />
               <FilterDropdown
                 label="Sort by"
                 options={SORT_OPTIONS}

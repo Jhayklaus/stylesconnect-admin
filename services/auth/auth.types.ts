@@ -1,6 +1,10 @@
+/** GET /auth/me — the shared session payload, trimmed to what the admin reads. */
 export interface AdminUser {
-  id: string;
+  id: number;
+  user_uuid: string;
   name: string;
+  first_name: string | null;
+  last_name: string | null;
   email: string;
   avatar_url: string | null;
   /**

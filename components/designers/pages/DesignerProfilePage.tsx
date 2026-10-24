@@ -35,7 +35,7 @@ const MANAGE_OPTIONS = [
   { value: "export", label: "Export profile" },
 ];
 
-function dateTime(iso: string | undefined): string {
+function dateTime(iso: string | null | undefined): string {
   return iso ? `${formatDateLong(iso)} ${formatTime(iso)}` : "—";
 }
 
@@ -102,14 +102,6 @@ export function DesignerProfilePage({ designerId }: { designerId: string }) {
                   value: data && <InfoChip href={`tel:${data.phone}`}>{data.phone}</InfoChip>,
                 },
                 { label: "Address", value: data?.address ?? "—" },
-              ],
-            },
-            {
-              title: "Subscription",
-              rows: [
-                { label: "Plan", value: data?.subscription_plan ?? "—" },
-                { label: "Started", value: dateTime(data?.subscription_started_at) },
-                { label: "Ends", value: dateTime(data?.subscription_ends_at) },
               ],
             },
             {
