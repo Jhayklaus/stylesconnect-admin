@@ -5,6 +5,8 @@ export { Button } from "./Button";
 export type { ButtonProps, ButtonSize, ButtonVariant } from "./Button";
 export { Card, CardHeader } from "./Card";
 export { Checkbox } from "./Checkbox";
+export { ConfirmModal } from "./ConfirmModal";
+export type { ConfirmModalProps } from "./ConfirmModal";
 export { ComingSoon } from "./ComingSoon";
 export { DataTable } from "./DataTable";
 export type { Column, DataTableProps, DataTableSelection } from "./DataTable";

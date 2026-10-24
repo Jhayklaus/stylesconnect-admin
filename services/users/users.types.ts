@@ -9,18 +9,26 @@ export interface PlatformUser {
   gender: string | null;
   profile_picture_url: string | null;
   is_email_verified: boolean;
-  /** "designer", "shopper", "admin". */
+  /** "customer" (a shopper), "designer", "admin" — can be several, or none. */
   roles: string[];
   created_at: string;
 }
 
+export type WaitlistType = "customer" | "designer";
+
 /**
- * Production's waitlist was empty when this was written, so only the id is
- * certain — widen from a real payload before building the screen.
+ * Production's waitlist was empty when this was written. Shaped from the
+ * consumer app's join form (POST /waitlist); `users.api.ts` reads every field
+ * defensively. Re-check against a real row.
  */
 export interface WaitlistEntry {
-  id: number | string;
-  [field: string]: unknown;
+  id: string;
+  type: WaitlistType;
+  full_name: string;
+  email: string;
+  phone: string | null;
+  city: string | null;
+  created_at: string;
 }
 
 export interface UserListParams {
@@ -29,5 +37,5 @@ export interface UserListParams {
 }
 
 export interface WaitlistParams extends UserListParams {
-  type?: string;
+  type?: WaitlistType | "all";
 }

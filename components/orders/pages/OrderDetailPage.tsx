@@ -15,9 +15,10 @@ import {
   StatusBadge,
 } from "@/components/ui";
 import { useOrder } from "@/hooks/orders/useOrders";
-import { formatCount, formatDateLong, formatNaira, formatTime } from "@/lib/format";
+import { formatCount, formatDateLong, formatNaira, formatTime, titleCase } from "@/lib/format";
 import { toast } from "@/lib/toast";
-import type { OrderDetail, OrderMeasurements } from "@/services/orders";
+import type { OrderDetail, OrderMeasurement } from "@/services/orders";
+import { DeliveryMap } from "../DeliveryMap";
 import { OrderProgress } from "../OrderProgress";
 import { OrderTimeline } from "../OrderTimeline";
 
@@ -27,14 +28,16 @@ const CRUMBS: Crumb[] = [
   { label: "Order" },
 ];
 
-function measurementLine(label: string, m: OrderMeasurements) {
+function MeasurementList({ measurements }: { measurements: OrderMeasurement[] }) {
   return (
-    <p className="font-jost text-sm leading-5 text-text-900">
-      <span className="text-text-500">{label}: </span>
-      Chest: {m.chest}
-      {"  "}Waist: {m.waist}
-      {"  "}Length: {m.length}
-    </p>
+    <dl className="flex flex-wrap gap-x-4 gap-y-1 font-jost text-sm leading-5">
+      {measurements.map((m) => (
+        <div key={m.type} className="flex gap-1">
+          <dt className="text-text-500">{titleCase(m.type)}:</dt>
+          <dd className="text-text-900">{m.measurement}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 
@@ -95,14 +98,7 @@ function CustomerRail({ detail }: { detail: OrderDetail }) {
         </h2>
         <p className="font-jost text-sm leading-5 text-text-900">{detail.shipping_address ?? "—"}</p>
 
-        {/* The design shows an embedded static map. That needs a keyed tile
-            provider, so this is a placeholder that links out instead. */}
-        <div className="flex items-center gap-2 rounded-xl border border-stroke-soft bg-bg-soft px-4 py-6">
-          <MapPin className="h-5 w-5 shrink-0 text-primary-base" aria-hidden />
-          <span className="font-jost text-xs leading-4 text-text-500">
-            Map preview unavailable — no tile provider configured
-          </span>
-        </div>
+        <DeliveryMap address={detail.shipping_address} />
 
         {mapsHref && (
           <a
@@ -255,10 +251,9 @@ export function OrderDetailPage({ orderId }: { orderId: string }) {
                         <div className="flex flex-col gap-3">
                           <span>{data.product.size ?? "—"}</span>
                           {/* Only custom-fit orders carry measurements. */}
-                          {data.product.measurements && (
-                            <div className="flex flex-col gap-1 rounded-lg bg-bg-soft px-3 py-2.5">
-                              {measurementLine("Top", data.product.measurements.top)}
-                              {measurementLine("Bottom", data.product.measurements.bottom)}
+                          {data.product.measurements && data.product.measurements.length > 0 && (
+                            <div className="rounded-lg bg-bg-soft px-3 py-2.5">
+                              <MeasurementList measurements={data.product.measurements} />
                             </div>
                           )}
                         </div>

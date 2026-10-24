@@ -17,6 +17,8 @@ export const MOCKS = {
   payments: ALL_MOCKS,
   members: ALL_MOCKS,
   attributes: ALL_MOCKS,
+  reviews: ALL_MOCKS,
+  users: ALL_MOCKS,
   // No backend endpoints yet.
   returns: true,
   refunds: true,

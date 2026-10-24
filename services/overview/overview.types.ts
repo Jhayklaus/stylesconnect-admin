@@ -54,7 +54,7 @@ export interface RecentOrder {
   created_at: string;
 }
 
-/** Platform money for the selected range. Naira. Not rendered yet. */
+/** Platform money for the selected range. Naira, except the shipment count. */
 export interface OverviewFinance {
   item_sales: number;
   commission_earned: number;
@@ -73,7 +73,7 @@ export interface OverviewFinance {
 export interface OverviewSummary {
   stats: OverviewStats;
   revenue: RevenueSeries;
-  finance?: OverviewFinance;
+  finance: OverviewFinance;
   /** Always empty until the tickets backend ships. */
   tickets: RecentTicket[];
   transactions: RecentTransaction[];

@@ -6,6 +6,7 @@ import { AdminTopBar } from "@/components/shell";
 import { StatCardRow, statDelta } from "@/components/ui";
 import { useOverview } from "@/hooks/overview/useOverview";
 import type { RevenueRange } from "@/services/overview";
+import { FinanceBreakdownCard } from "../FinanceBreakdownCard";
 import { RecentOrdersCard } from "../RecentOrdersCard";
 import { RecentTicketsCard } from "../RecentTicketsCard";
 import { RecentTransactionsCard } from "../RecentTransactionsCard";
@@ -62,6 +63,8 @@ export function OverviewPage() {
           />
           <RecentTicketsCard tickets={data?.tickets} isLoading={isLoading} />
         </div>
+
+        <FinanceBreakdownCard finance={data?.finance} isLoading={isLoading} />
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">
           <RecentTransactionsCard transactions={data?.transactions} isLoading={isLoading} />

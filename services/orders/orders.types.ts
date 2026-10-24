@@ -84,10 +84,11 @@ export const ORDER_STAGES: { value: OrderStage; label: string }[] = [
   { value: "delivered", label: "Delivered" },
 ];
 
-export interface OrderMeasurements {
-  chest: string;
-  waist: string;
-  length: string;
+/** One custom-fit number: { type: "chest", measurement: "70" }. Unitless as sent. */
+export interface OrderMeasurement {
+  /** Free-form body part — "chest", "waist", "shoulder", "length", … */
+  type: string;
+  measurement: string;
 }
 
 export interface OrderItem {
@@ -100,8 +101,8 @@ export interface OrderItem {
   store: string;
   color: string | null;
   size: string | null;
-  /** Custom-fit numbers, split by garment half. Null for standard sizes. */
-  measurements: { top: OrderMeasurements; bottom: OrderMeasurements } | null;
+  /** Custom-fit numbers, in the order the shopper entered them. Null for standard sizes. */
+  measurements: OrderMeasurement[] | null;
   quantity: number;
   unit_price: number;
   total: number;

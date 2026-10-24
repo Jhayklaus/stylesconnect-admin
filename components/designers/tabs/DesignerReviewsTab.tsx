@@ -1,21 +1,18 @@
 "use client";
 
-import Image from "next/image";
 import { MoreHorizontal } from "lucide-react";
 import {
-  Avatar,
   CopyButton,
   EmptyState,
   FilterDropdown,
   IconButton,
   Pagination,
-  Rating,
   RatingSummary,
   Skeleton,
 } from "@/components/ui";
+import { ReviewCard } from "@/components/reviews/ReviewCard";
 import { useDesignerReviews } from "@/hooks/designers/useDesignerDetail";
 import { useListParams } from "@/hooks/useListParams";
-import { formatDateShort, formatTime } from "@/lib/format";
 import type { DesignerDetail, DesignerReviewItem } from "@/services/designers";
 
 const RATING_OPTIONS = [
@@ -34,57 +31,34 @@ const STATUS_OPTIONS = [
   { value: "rejected", label: "Rejected" },
 ];
 
-function ReviewCard({ review }: { review: DesignerReviewItem }) {
+function DesignerReview({ review }: { review: DesignerReviewItem }) {
   return (
-    <article className="flex flex-col gap-3 border-b border-stroke-soft pb-6 last:border-b-0">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <Avatar src={review.reviewer.avatar_url} name={review.reviewer.name} size="sm" />
-          <span className="font-jost font-medium text-sm leading-5 text-text-900">
-            {review.reviewer.name}
-          </span>
-          <span className="font-jost text-sm leading-5 text-text-300">
-            • {formatDateShort(review.created_at)} {formatTime(review.created_at)}
-          </span>
-        </div>
+    <ReviewCard
+      reviewer={review.reviewer}
+      createdAt={review.created_at}
+      rating={review.rating}
+      body={review.body}
+      images={review.images}
+      meta={
+        <span className="inline-flex items-center gap-1.5 font-jost text-sm leading-5 text-text-500">
+          {review.reference}
+          <CopyButton value={review.reference} label="Review ID" />
+        </span>
+      }
+      context={
+        <>
+          Order: <span className="text-text-900 underline">{review.order.product_title}</span>
+        </>
+      }
+      actions={
         <IconButton
           label="Review actions"
           size="sm"
           className="border-0 bg-transparent"
           icon={<MoreHorizontal className="h-[18px] w-[18px]" />}
         />
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="inline-flex items-center gap-1.5 font-jost text-sm leading-5 text-text-500">
-          {review.reference}
-          <CopyButton value={review.reference} label="Review ID" />
-        </span>
-        <Rating value={review.rating} size="sm" />
-      </div>
-
-      <p className="border-l-2 border-stroke-soft pl-3 font-jost text-sm leading-5 text-text-500">
-        Order: <span className="text-text-900 underline">{review.order.product_title}</span>
-      </p>
-
-      <p className="font-jost text-sm leading-5 text-text-900">{review.body}</p>
-
-      {review.images.length > 0 && (
-        <ul className="flex flex-wrap gap-3">
-          {review.images.map((src, i) => (
-            <li key={`${review.id}-img-${i}`}>
-              <Image
-                src={src}
-                alt=""
-                width={56}
-                height={56}
-                className="h-14 w-14 rounded-lg border border-stroke-soft object-cover"
-              />
-            </li>
-          ))}
-        </ul>
-      )}
-    </article>
+      }
+    />
   );
 }
 
@@ -148,7 +122,7 @@ export function DesignerReviewsTab({
         <>
           <div className="flex flex-col gap-6">
             {data.data.map((review) => (
-              <ReviewCard key={review.id} review={review} />
+              <DesignerReview key={review.id} review={review} />
             ))}
           </div>
           {data.meta.last_page > 1 && (

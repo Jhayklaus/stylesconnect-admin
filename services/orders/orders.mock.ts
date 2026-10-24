@@ -67,10 +67,12 @@ export function mockOrderDetail(id: string): OrderDetail | undefined {
       size: ["Small", "Medium", "Large", "XLarge"][(index + i) % 4],
       measurements:
         i === 0
-          ? {
-              top: { chest: "24Cm", waist: "240Cm", length: "240Cm" },
-              bottom: { chest: "24Cm", waist: "240Cm", length: "240Cm" },
-            }
+          ? [
+              { type: "chest", measurement: "70" },
+              { type: "waist", measurement: "55" },
+              { type: "shoulder", measurement: "30" },
+              { type: "length", measurement: "39.11" },
+            ]
           : null,
       quantity,
       unit_price: unitPrice,

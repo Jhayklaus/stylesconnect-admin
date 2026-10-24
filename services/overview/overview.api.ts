@@ -3,6 +3,7 @@ import type { ApiEnvelope } from "../types";
 import { MOCKS } from "../mock/config";
 import { delay } from "../mock/transport";
 import {
+  MOCK_FINANCE,
   MOCK_OVERVIEW_STATS,
   MOCK_RECENT_ORDERS,
   MOCK_RECENT_TICKETS,
@@ -25,6 +26,7 @@ export async function fetchOverview(
     return {
       stats: MOCK_OVERVIEW_STATS,
       revenue: MOCK_REVENUE,
+      finance: MOCK_FINANCE,
       tickets: MOCK_RECENT_TICKETS,
       transactions: MOCK_RECENT_TRANSACTIONS,
       orders: MOCK_RECENT_ORDERS,

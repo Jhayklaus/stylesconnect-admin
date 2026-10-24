@@ -1,5 +1,6 @@
 import { PEOPLE, daysAgo, emailFor, intBetween, productImage, seeded } from "../mock/seed";
 import type {
+  OverviewFinance,
   OverviewStats,
   RecentOrder,
   RecentTicket,
@@ -29,6 +30,21 @@ const SUBSCRIPTION = [
   700_000, 3_000_000, 60_000_000, 40_000_000, 9_000_000, 6_000_000,
   4_000_000, 1_500_000, 2_000_000, 8_000_000, 3_000_000, 1_200_000,
 ];
+
+export const MOCK_FINANCE: OverviewFinance = {
+  item_sales: 4_820_000,
+  commission_earned: 385_600,
+  commission_pending: 96_400,
+  first_order_commission_waived: 24_000,
+  vat_owed: 28_920,
+  vat_pending: 7_230,
+  delivery_fees_collected: 612_500,
+  courier_costs: 498_750,
+  delivery_margin: 113_750,
+  shipments_missing_cost: 3,
+  platform_income: 499_350,
+  refunds_issued: 45_000,
+};
 
 export const MOCK_REVENUE: RevenueSeries = {
   total: 240_000_000,

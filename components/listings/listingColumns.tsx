@@ -1,3 +1,4 @@
+import { Star } from "lucide-react";
 import { StatusBadge, type Column } from "@/components/ui";
 import { formatCount, formatDateShort, formatNaira } from "@/lib/format";
 import type { Listing } from "@/services/listings";
@@ -17,7 +18,15 @@ export const listingColumns: Column<Listing>[] = [
           className="h-11 w-11 shrink-0 rounded-lg object-cover"
         />
         <span className="min-w-0">
-          <span className="block truncate text-text-900">{row.title}</span>
+          <span className="flex items-center gap-1.5">
+            <span className="truncate text-text-900">{row.title}</span>
+            {row.is_featured && (
+              <Star
+                className="h-3.5 w-3.5 shrink-0 fill-primary-base text-primary-base"
+                aria-label="Featured on home"
+              />
+            )}
+          </span>
           <span className="block truncate text-xs leading-4 text-text-500">{row.category}</span>
         </span>
       </div>

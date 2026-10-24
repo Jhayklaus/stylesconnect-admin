@@ -38,6 +38,8 @@ export const DEFAULT_STATUS_TONE: Record<string, StatusTone> = {
   declined: "danger",
   rejected: "danger",
 
+  featured: "info",
+
   pending: "warning",
   medium: "warning",
   processing: "warning",
