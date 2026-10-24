@@ -18,10 +18,14 @@ export function clearAuthToken(): void {
   window.localStorage.removeItem(TOKEN_STORAGE_KEY);
 }
 
-const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
+/**
+ * Same-origin path that next.config.mjs rewrites to the server-only
+ * API_BASE_URL, so the backend's address never ships in the client bundle.
+ */
+export const API_PROXY_PATH = "/api/backend";
 
 export const apiClient = axios.create({
-  baseURL,
+  baseURL: API_PROXY_PATH,
   headers: {
     Accept: "application/json",
   },
